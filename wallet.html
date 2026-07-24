@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>My Wallet | EASYPIE - Premium Naira Investments</title>
+    <meta name="description" content="Manage your funds, track daily earnings, and view your transaction history on EASYPIE.">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="public/favicon.ico" type="image/x-icon">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Global Styles -->
+    <link rel="stylesheet" href="assets/css/main.css">
+
+    <style>
+        /* Wallet Specific UI Enhancements */
+        .wallet-summary-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--space-4);
+            margin-bottom: var(--space-8);
+        }
+
+        @media (min-width: 768px) {
+            .wallet-summary-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        .balance-item {
+            background: var(--white);
+            padding: var(--space-4);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--gray-200);
+            transition: var(--transition-base);
+        }
+
+        .balance-item:hover {
+            border-color: var(--primary-light);
+            background-color: var(--gray-50);
+        }
+
+        .action-card-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--space-4);
+            margin-bottom: var(--space-8);
+        }
+
+        @media (min-width: 1024px) {
+            .action-card-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        .activity-header {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-4);
+            margin-bottom: var(--space-4);
+        }
+
+        @media (min-width: 768px) {
+            .activity-header {
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+            }
+        }
+
+        .filter-group {
+            display: flex;
+            gap: var(--space-2);
+            overflow-x: auto;
+            padding-bottom: var(--space-2);
+            scrollbar-width: none;
+        }
+
+        .filter-group::-webkit-scrollbar { display: none; }
+
+        .balance-toggle {
+            cursor: pointer;
+            opacity: 0.7;
+            transition: var(--transition-base);
+        }
+
+        .balance-toggle:hover { opacity: 1; }
+
+        .bonus-badge {
+            background: linear-gradient(90deg, var(--accent), #d97706);
+            color: white;
+            padding: 2px 8px;
+            border-radius: var(--radius-full);
+            font-size: 0.65rem;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar Navigation (Desktop) -->
+    <aside class="sidebar">
+        <div class="m-b-12">
+            <a href="dashboard.html" class="flex items-center gap-2" style="text-decoration: none;">
+                <i class="fas fa-pie-chart text-white" style="font-size: 1.5rem;"></i>
+                <span style="font-size: 1.25rem; font-weight: 800; color: var(--white);">EASYPIE</span>
+            </a>
+        </div>
+        
+        <nav class="flex flex-col gap-2">
+            <a href="dashboard.html" class="btn btn-ghost justify-start" style="color: var(--gray-300);">
+                <i class="fas fa-grid-2"></i> Dashboard
+            </a>
+            <a href="plans.html" class="btn btn-ghost justify-start" style="color: var(--gray-300);">
+                <i class="fas fa-rocket"></i> Investment Plans
+            </a>
+            <a href="investment.html" class="btn btn-ghost justify-start" style="color: var(--gray-300);">
+                <i class="fas fa-chart-line"></i> My Portfolio
+            </a>
+            <a href="wallet.html" class="btn btn-ghost justify-start active" style="color: var(--white); background: rgba(255,255,255,0.1);">
+                <i class="fas fa-wallet"></i> My Wallet
+            </a>
+            <a href="referral.html" class="btn btn-ghost justify-start" style="color: var(--gray-300);">
+                <i class="fas fa-users"></i> Referrals
+            </a>
+            <hr style="border: none; border-top: 1px solid rgba(255,255,255,0.05); margin: var(--space-4) 0;">
+            <a href="transactions.html" class="btn btn-ghost justify-start" style="color: var(--gray-300);">
+                <i class="fas fa-list-ul"></i> Transactions
+            </a>
+            <a href="profile.html" class="btn btn-ghost justify-start" style="color: var(--gray-300);">
+                <i class="fas fa-user-circle"></i> Profile
+            </a>
+            <button id="logout-btn" class="btn btn-ghost justify-start text-danger" style="margin-top: auto;">
+                <i class="fas fa-sign-out-alt"></i> Sign Out
+            </button>
+        </nav>
+    </aside>
+
+    <!-- Top Navigation (Mobile) -->
+    <header class="container" style="height: var(--header-height); display: flex; align-items: center; justify-content: space-between; background: var(--white); border-bottom: 1px solid var(--gray-200); position: sticky; top: 0; z-index: 999;">
+        <div class="flex items-center gap-2">
+            <h4 class="m-0">Wallet Dashboard</h4>
+        </div>
+        <div class="flex items-center gap-4">
+            <a href="notifications.html" style="color: var(--gray-600);"><i class="fas fa-bell"></i></a>
+            <div style="width: 36px; height: 36px; background: var(--gray-100); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                <i class="fas fa-user text-gray-500"></i>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="container">
+
+            <!-- Main Balance Card -->
+            <div class="m-b-8">
+                <div class="wallet-card">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-sm m-b-1" style="opacity: 0.85;">Total Available Balance</p>
+                            <h1 class="wallet-balance m-0">
+                                ₦<span id="main-balance">0.00</span>
+                                <i class="fas fa-eye-slash text-sm m-l-2 balance-toggle" id="toggle-visibility"></i>
+                            </h1>
+                        </div>
+                        <div class="flex flex-col items-end">
+                            <span class="bonus-badge m-b-2">Verified Account</span>
+                            <p class="text-xs m-0" style="opacity: 0.7;">Lagos, NG (UTC+1)</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-4 m-t-8">
+                        <a href="deposit.html" class="btn btn-secondary btn-sm flex-1">
+                            <i class="fas fa-plus-circle"></i> Deposit
+                        </a>
+                        <a href="withdraw.html" class="btn btn-outline btn-sm flex-1" style="background: rgba(255,255,255,0.15); border-color: transparent; color: white;">
+                            <i class="fas fa-arrow-up"></i> Withdraw
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Balance Breakdowns -->
+            <div class="wallet-summary-grid">
+                <div class="balance-item">
+                    <p class="text-xs text-muted uppercase font-bold m-b-1">Investments</p>
+                    <h3 class="m-0" id="stat-invest-bal">₦0.00</h3>
+                </div>
+                <div class="balance-item">
+                    <p class="text-xs text-muted uppercase font-bold m-b-1">Referral Bonus</p>
+                    <h3 class="m-0" id="stat-ref-bal">₦0.00</h3>
+                </div>
+                <div class="balance-item">
+                    <p class="text-xs text-muted uppercase font-bold m-b-1">Total Profits</p>
+                    <h3 class="m-0 text-primary" id="stat-profit-bal">₦0.00</h3>
+                </div>
+                <div class="balance-item">
+                    <p class="text-xs text-muted uppercase font-bold m-b-1">Welcome Bonus</p>
+                    <h3 class="m-0" id="stat-welcome-bal">₦500.00</h3>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <h3 class="m-b-4">Quick Actions</h3>
+            <div class="action-card-grid">
+                <a href="plans.html" class="card card-interactive p-4 flex items-center gap-4" style="text-decoration: none;">
+                    <div class="btn btn-primary btn-sm p-0" style="width: 40px; height: 40px;"><i class="fas fa-rocket"></i></div>
+                    <div>
+                        <h4 class="m-0 text-sm">Invest Now</h4>
+                        <p class="text-xs text-muted m-0">Start earning daily</p>
+                    </div>
+                </a>
+                <a href="earnings.html" class="card card-interactive p-4 flex items-center gap-4" style="text-decoration: none;">
+                    <div class="btn btn-secondary btn-sm p-0" style="width: 40px; height: 40px; background: var(--success);"><i class="fas fa-coins"></i></div>
+                    <div>
+                        <h4 class="m-0 text-sm">Earnings Log</h4>
+                        <p class="text-xs text-muted m-0">Track ROI credits</p>
+                    </div>
+                </a>
+                <a href="referral.html" class="card card-interactive p-4 flex items-center gap-4" style="text-decoration: none;">
+                    <div class="btn btn-secondary btn-sm p-0" style="width: 40px; height: 40px; background: var(--info);"><i class="fas fa-users"></i></div>
+                    <div>
+                        <h4 class="m-0 text-sm">Refer & Earn</h4>
+                        <p class="text-xs text-muted m-0">Get 5% commission</p>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Recent Activity Table -->
+            <div class="activity-header">
+                <h3 class="m-0">Recent Activity</h3>
+                <div class="flex gap-2">
+                    <input type="text" id="tx-search" class="input p-2 text-sm" style="max-width: 200px;" placeholder="Search reference...">
+                    <select id="tx-filter" class="select p-2 text-sm" style="max-width: 150px;">
+                        <option value="all">All Types</option>
+                        <option value="deposit">Deposits</option>
+                        <option value="withdrawal">Withdrawals</option>
+                        <option value="earnings">ROI Earnings</option>
+                        <option value="referral">Referrals</option>
+                        <option value="bonus">Bonuses</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="card p-0 m-b-12">
+                <div class="table-wrapper" style="border: none;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Type</th>
+                                <th>Description</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Balance</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tx-body">
+                            <!-- Loading State -->
+                            <tr>
+                                <td colspan="6" class="text-center p-12">
+                                    <div class="spinner" style="margin: 0 auto; border-top-color: var(--primary);"></div>
+                                    <p class="m-t-4 text-muted">Loading transactions...</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <!-- Pagination -->
+                <div id="pagination-controls" class="p-4 flex justify-between items-center border-top">
+                    <button id="prev-page" class="btn btn-outline btn-sm" disabled>Previous</button>
+                    <span class="text-xs font-bold text-muted">Page <span id="current-page">1</span></span>
+                    <button id="next-page" class="btn btn-outline btn-sm">Next</button>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Mobile Bottom Navigation -->
+    <nav class="mobile-nav">
+        <a href="dashboard.html" class="nav-item">
+            <i class="fas fa-grid-2"></i>
+            <span>Home</span>
+        </a>
+        <a href="investment.html" class="nav-item">
+            <i class="fas fa-chart-line"></i>
+            <span>Portfolio</span>
+        </a>
+        <a href="plans.html" class="nav-item">
+            <i class="fas fa-rocket"></i>
+            <span>Invest</span>
+        </a>
+        <a href="wallet.html" class="nav-item active">
+            <i class="fas fa-wallet"></i>
+            <span>Wallet</span>
+        </a>
+        <a href="profile.html" class="nav-item">
+            <i class="fas fa-user-circle"></i>
+            <span>Profile</span>
+        </a>
+    </nav>
+
+    <!-- Core Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script type="module">
+        import { supabase } from './assets/js/main.js';
+
+        let balancesVisible = true;
+        let currentPage = 1;
+        const perPage = 10;
+
+        async function initWallet() {
+            // 1. Session Protection
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const userId = session.user.id;
+
+            // 2. Load Wallet Statistics
+            fetchWalletData(userId);
+            
+            // 3. Load Transactions
+            fetchTransactions(userId);
+
+            // 4. Setup Event Listeners
+            setupEventListeners(userId);
+        }
+
+        async function fetchWalletData(userId) {
+            try {
+                const { data: wallet, error } = await supabase
+                    .from('wallets')
+                    .select('*')
+                    .eq('user_id', userId)
+                    .single();
+
+                if (error) throw error;
+
+                // Credit Welcome Bonus if not already done (Handled by backend ideally, but UI check)
+                // Assuming wallet has a boolean flag 'welcome_bonus_claimed'
+                
+                document.getElementById('main-balance').textContent = wallet.balance.toLocaleString('en-NG', { minimumFractionDigits: 2 });
+                document.getElementById('stat-invest-bal').textContent = '₦' + wallet.total_invested.toLocaleString();
+                document.getElementById('stat-ref-bal').textContent = '₦' + wallet.referral_earnings.toLocaleString();
+                document.getElementById('stat-profit-bal').textContent = '₦' + wallet.total_profit.toLocaleString();
+                
+            } catch (err) {
+                console.error("Wallet Fetch Error:", err);
+            }
+        }
+
+        async function fetchTransactions(userId) {
+            const tbody = document.getElementById('tx-body');
+            const typeFilter = document.getElementById('tx-filter').value;
+            const searchVal = document.getElementById('tx-search').value.trim();
+
+            try {
+                let query = supabase
+                    .from('transactions')
+                    .select('*', { count: 'exact' })
+                    .eq('user_id', userId)
+                    .order('created_at', { ascending: false })
+                    .range((currentPage - 1) * perPage, currentPage * perPage - 1);
+
+                if (typeFilter !== 'all') query = query.eq('type', typeFilter);
+                if (searchVal) query = query.ilike('reference', `%${searchVal}%`);
+
+                const { data, count, error } = await query;
+
+                if (error) throw error;
+
+                tbody.innerHTML = '';
+
+                if (!data || data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="text-center p-12 text-muted">No transactions matching your criteria.</td></tr>';
+                    document.getElementById('next-page').disabled = true;
+                    return;
+                }
+
+                data.forEach(tx => {
+                    const statusClass = tx.status === 'completed' ? 'badge-success' : (tx.status === 'pending' ? 'badge-warning' : 'badge-danger');
+                    const amountClass = tx.amount >= 0 ? 'text-primary' : 'text-danger';
+                    const amountPrefix = tx.amount >= 0 ? '+' : '';
+
+                    const row = `
+                        <tr>
+                            <td class="text-xs text-muted">${new Date(tx.created_at).toLocaleDateString()}</td>
+                            <td><span class="badge badge-success" style="background: var(--gray-100); color: var(--gray-700);">${tx.type}</span></td>
+                            <td class="text-xs font-medium">${tx.description}</td>
+                            <td class="${amountClass} font-bold">${amountPrefix}₦${Math.abs(tx.amount).toLocaleString()}</td>
+                            <td><span class="badge ${statusClass}">${tx.status}</span></td>
+                            <td class="text-xs font-bold">₦${tx.balance_after.toLocaleString()}</td>
+                        </tr>
+                    `;
+                    tbody.innerHTML += row;
+                });
+
+                document.getElementById('next-page').disabled = count <= (currentPage * perPage);
+                document.getElementById('prev-page').disabled = currentPage === 1;
+
+            } catch (err) {
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">Error: ${err.message}</td></tr>`;
+            }
+        }
+
+        function setupEventListeners(userId) {
+            // Visibility Toggle
+            document.getElementById('toggle-visibility').addEventListener('click', function() {
+                balancesVisible = !balancesVisible;
+                const els = [
+                    document.getElementById('main-balance'),
+                    document.getElementById('stat-invest-bal'),
+                    document.getElementById('stat-ref-bal'),
+                    document.getElementById('stat-profit-bal'),
+                    document.getElementById('stat-welcome-bal')
+                ];
+                
+                if (!balancesVisible) {
+                    els.forEach(el => el.dataset.val = el.textContent);
+                    els.forEach(el => el.textContent = '••••••');
+                    this.className = 'fas fa-eye text-sm m-l-2 balance-toggle';
+                } else {
+                    els.forEach(el => el.textContent = el.dataset.val);
+                    this.className = 'fas fa-eye-slash text-sm m-l-2 balance-toggle';
+                }
+            });
+
+            // Filtering
+            document.getElementById('tx-filter').addEventListener('change', () => {
+                currentPage = 1;
+                fetchTransactions(userId);
+            });
+
+            document.getElementById('tx-search').addEventListener('input', debounce(() => {
+                currentPage = 1;
+                fetchTransactions(userId);
+            }, 500));
+
+            // Pagination
+            document.getElementById('prev-page').addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    fetchTransactions(userId);
+                }
+            });
+
+            document.getElementById('next-page').addEventListener('click', () => {
+                currentPage++;
+                fetchTransactions(userId);
+            });
+
+            // Logout
+            document.getElementById('logout-btn').addEventListener('click', async () => {
+                await supabase.auth.signOut();
+                window.location.href = 'login.html';
+            });
+        }
+
+        function debounce(func, timeout = 300) {
+            let timer;
+            return (...args) => {
+                clearTimeout(timer);
+                timer = setTimeout(() => { func.apply(this, args); }, timeout);
+            };
+        }
+
+        document.addEventListener('DOMContentLoaded', initWallet);
+    </script>
+</body>
+</html>
