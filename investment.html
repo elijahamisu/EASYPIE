@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Invest | EASYPIE - Premium Naira Investments</title>
+    <meta name="description" content="Securely invest your Naira and watch your wealth grow with automated daily returns.">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="public/favicon.ico" type="image/x-icon">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Global Styles -->
+    <link rel="stylesheet" href="assets/css/main.css">
+
+    <style>
+        .investment-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: var(--space-6);
+        }
+
+        @media (min-width: 1024px) {
+            .investment-container {
+                grid-template-columns: 1fr 400px;
+            }
+        }
+
+        .plan-summary-card {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--gray-200);
+            padding: var(--space-6);
+            position: sticky;
+            top: calc(var(--header-height) + var(--space-4));
+        }
+
+        .calc-row {
+            display: flex;
+            justify-content: space-between;
+            padding: var(--space-3) 0;
+            border-bottom: 1px dotted var(--gray-200);
+        }
+
+        .calc-row:last-child {
+            border-bottom: none;
+        }
+
+        .amount-input-wrapper {
+            position: relative;
+        }
+
+        .amount-input-wrapper span {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-weight: 700;
+            color: var(--gray-900);
+        }
+
+        .amount-input-wrapper .input {
+            padding-left: 2.5rem;
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        .maturity-badge {
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            padding: var(--space-4);
+            border-radius: var(--radius-md);
+            text-align: center;
+            margin-top: var(--space-6);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <div class="m-b-12">
+            <a href="dashboard.html" class="flex items-center gap-2" style="text-decoration: none;">
+                <i class="fas fa-pie-chart text-white" style="font-size: 1.5rem;"></i>
+                <span style="font-size: 1.25rem; font-weight: 800; color: var(--white);">EASYPIE</span>
+            </a>
+        </div>
+        <nav class="flex flex-col gap-2">
+            <a href="dashboard.html" class="btn btn-ghost justify-start" style="color: var(--gray-300);">
+                <i class="fas fa-grid-2"></i> Dashboard
+            </a>
+            <a href="plans.html" class="btn btn-ghost justify-start active" style="color: var(--white); background: rgba(255,255,255,0.1);">
+                <i class="fas fa-rocket"></i> Investment Plans
+            </a>
+            <a href="investment.html" class="btn btn-ghost justify-start" style="color: var(--gray-300);">
+                <i class="fas fa-chart-line"></i> My Portfolio
+            </a>
+            <a href="wallet.html" class="btn btn-ghost justify-start" style="color: var(--gray-300);">
+                <i class="fas fa-wallet"></i> My Wallet
+            </a>
+            <hr style="border: none; border-top: 1px solid rgba(255,255,255,0.05); margin: var(--space-4) 0;">
+            <a href="profile.html" class="btn btn-ghost justify-start" style="color: var(--gray-300);">
+                <i class="fas fa-user-circle"></i> Profile
+            </a>
+            <button id="logout-btn" class="btn btn-ghost justify-start text-danger" style="margin-top: auto;">
+                <i class="fas fa-sign-out-alt"></i> Sign Out
+            </button>
+        </nav>
+    </aside>
+
+    <!-- Top Navigation -->
+    <header class="container" style="height: var(--header-height); display: flex; align-items: center; justify-content: space-between; background: var(--white); border-bottom: 1px solid var(--gray-200); position: sticky; top: 0; z-index: 999;">
+        <div class="flex items-center gap-2">
+            <a href="plans.html" class="btn btn-ghost p-2 md-hidden"><i class="fas fa-arrow-left"></i></a>
+            <h4 class="m-0">Complete Investment</h4>
+        </div>
+
+        <div class="flex items-center gap-6">
+            <div class="text-right hidden sm-block">
+                <p class="text-xs text-muted m-0">Wallet Balance</p>
+                <h4 class="m-0 text-primary">₦<span id="wallet-balance-display">0.00</span></h4>
+            </div>
+            <div style="width: 36px; height: 36px; background: var(--gray-100); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                <i class="fas fa-user text-gray-500"></i>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="container">
+            
+            <div id="loading-state" class="flex flex-col items-center justify-center p-12">
+                <div class="spinner" style="border-top-color: var(--primary);"></div>
+                <p class="m-t-4 text-muted">Fetching plan details...</p>
+            </div>
+
+            <div id="investment-content" class="investment-container hidden">
+                
+                <!-- Left: Investment Form -->
+                <div class="flex flex-col gap-6">
+                    <div class="card">
+                        <h3 class="m-b-6">Amount to Invest</h3>
+                        
+                        <!-- Alert Box -->
+                        <div id="error-alert" class="alert alert-error hidden m-b-4">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <span id="error-message"></span>
+                        </div>
+
+                        <form id="investment-form">
+                            <div class="form-group m-b-6">
+                                <label class="label">Investment Amount (₦)</label>
+                                <div class="amount-input-wrapper">
+                                    <span>₦</span>
+                                    <input type="number" id="invest-amount" class="input" placeholder="0.00" required>
+                                </div>
+                                <div class="flex justify-between m-t-2">
+                                    <p id="limit-text" class="text-xs text-muted">Min: ₦0 | Max: ₦0</p>
+                                    <p id="balance-info" class="text-xs text-muted font-bold">Wallet: ₦0.00</p>
+                                </div>
+                            </div>
+
+                            <div class="m-b-8">
+                                <div class="checkbox-group flex items-start gap-3">
+                                    <input type="checkbox" id="confirm-terms" required style="margin-top: 3px; width: 20px; height: 20px; accent-color: var(--primary);">
+                                    <label for="confirm-terms" class="text-sm text-muted">
+                                        I confirm that I want to invest the specified amount. I understand that the investment will be locked for the duration of the plan.
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="flex gap-4">
+                                <a href="plans.html" class="btn btn-outline flex-1">Cancel</a>
+                                <button type="submit" id="submit-investment" class="btn btn-primary flex-2">
+                                    <span id="btn-text">Invest Now</span>
+                                    <div id="btn-loader" class="spinner hidden"></div>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Daily Calculation Details -->
+                    <div class="card">
+                        <h4 class="m-b-4">Earnings Projection</h4>
+                        <div class="calc-row">
+                            <span class="text-sm text-muted">Daily Return (<span id="calc-roi">0</span>%)</span>
+                            <span id="proj-daily" class="font-bold">₦0.00</span>
+                        </div>
+                        <div class="calc-row">
+                            <span class="text-sm text-muted">Total Net Profit</span>
+                            <span id="proj-profit" class="font-bold text-primary">₦0.00</span>
+                        </div>
+                        <div class="calc-row">
+                            <span class="text-sm text-muted">Total Payout</span>
+                            <span id="proj-total" class="font-bold">₦0.00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Selected Plan Info -->
+                <div class="flex flex-col gap-6">
+                    <div class="plan-summary-card">
+                        <h4 class="text-xs text-muted uppercase font-bold m-b-2">Selected Plan</h4>
+                        <h2 id="plan-name" class="m-b-4">Plan Name</h2>
+                        
+                        <div class="flex flex-col gap-4">
+                            <div class="flex justify-between">
+                                <span class="text-sm text-muted">Daily ROI</span>
+                                <span class="badge badge-success" id="plan-roi">0%</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-sm text-muted">Duration</span>
+                                <span class="font-semibold" id="plan-duration">0 Days</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-sm text-muted">Risk Level</span>
+                                <span id="plan-risk" class="font-semibold">Low</span>
+                            </div>
+                        </div>
+
+                        <div class="maturity-badge">
+                            <p class="text-xs uppercase font-bold m-b-1" style="opacity: 0.8;">Maturity Date</p>
+                            <h4 id="maturity-date" class="m-0">Jan 01, 2026</h4>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- Core Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script type="module">
+        import { supabase } from './assets/js/main.js';
+
+        let currentPlan = null;
+        let walletBalance = 0;
+
+        async function initInvestment() {
+            // 1. Session Check
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // 2. Extract Plan ID from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const planId = urlParams.get('plan_id');
+
+            if (!planId) {
+                window.location.href = 'plans.html';
+                return;
+            }
+
+            try {
+                // 3. Fetch Plan and Wallet in Parallel
+                const [planRes, walletRes] = await Promise.all([
+                    supabase.from('plans').select('*').eq('id', planId).eq('is_active', true).single(),
+                    supabase.from('wallets').select('balance').eq('user_id', session.user.id).single()
+                ]);
+
+                if (planRes.error || !planRes.data) throw new Error('Plan not found or inactive.');
+                if (walletRes.error) throw new Error('Could not retrieve wallet balance.');
+
+                currentPlan = planRes.data;
+                walletBalance = walletRes.data.balance;
+
+                renderPageData();
+                setupCalculator();
+
+            } catch (err) {
+                document.getElementById('loading-state').innerHTML = `<div class="alert alert-error">${err.message}</div><a href="plans.html" class="btn btn-outline m-t-4">Back to Plans</a>`;
+            }
+        }
+
+        function renderPageData() {
+            document.getElementById('loading-state').classList.add('hidden');
+            document.getElementById('investment-content').classList.remove('hidden');
+
+            document.getElementById('wallet-balance-display').textContent = walletBalance.toLocaleString('en-NG', { minimumFractionDigits: 2 });
+            document.getElementById('balance-info').textContent = 'Wallet: ₦' + walletBalance.toLocaleString();
+            
+            document.getElementById('plan-name').textContent = currentPlan.name;
+            document.getElementById('plan-roi').textContent = currentPlan.daily_roi + '%';
+            document.getElementById('plan-duration').textContent = currentPlan.duration + ' Days';
+            document.getElementById('plan-risk').textContent = currentPlan.risk_level;
+            document.getElementById('calc-roi').textContent = currentPlan.daily_roi;
+            document.getElementById('limit-text').textContent = `Min: ₦${currentPlan.min_amount.toLocaleString()} | Max: ${currentPlan.max_amount ? '₦' + currentPlan.max_amount.toLocaleString() : 'Unlimited'}`;
+
+            document.getElementById('invest-amount').min = currentPlan.min_amount;
+            if (currentPlan.max_amount) document.getElementById('invest-amount').max = currentPlan.max_amount;
+        }
+
+        function setupCalculator() {
+            const amountInput = document.getElementById('invest-amount');
+            const alertBox = document.getElementById('error-alert');
+            const alertMsg = document.getElementById('error-message');
+
+            amountInput.addEventListener('input', () => {
+                const amount = parseFloat(amountInput.value) || 0;
+                
+                // Real-time Math
+                const daily = (amount * (currentPlan.daily_roi / 100));
+                const totalProfit = daily * currentPlan.duration;
+                const totalReturn = amount + totalProfit;
+
+                // Dates (Lagos Time)
+                const maturityDate = new Date();
+                maturityDate.setDate(maturityDate.getDate() + currentPlan.duration);
+                const dateOptions = { year: 'numeric', month: 'short', day: 'numeric' };
+
+                // Update UI
+                document.getElementById('proj-daily').textContent = '₦' + daily.toLocaleString('en-NG', { minimumFractionDigits: 2 });
+                document.getElementById('proj-profit').textContent = '₦' + totalProfit.toLocaleString('en-NG', { minimumFractionDigits: 2 });
+                document.getElementById('proj-total').textContent = '₦' + totalReturn.toLocaleString('en-NG', { minimumFractionDigits: 2 });
+                document.getElementById('maturity-date').textContent = maturityDate.toLocaleDateString('en-NG', dateOptions);
+
+                // Balance Validation
+                if (amount > walletBalance) {
+                    alertBox.classList.remove('hidden');
+                    alertMsg.textContent = "Insufficient wallet balance.";
+                } else {
+                    alertBox.classList.add('hidden');
+                }
+            });
+        }
+
+        document.getElementById('investment-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const amount = parseFloat(document.getElementById('invest-amount').value);
+            const btn = document.getElementById('submit-investment');
+            const loader = document.getElementById('btn-loader');
+            const btnText = document.getElementById('btn-text');
+            const alertBox = document.getElementById('error-alert');
+            const alertMsg = document.getElementById('error-message');
+
+            // Final Validation
+            if (amount < currentPlan.min_amount || (currentPlan.max_amount && amount > currentPlan.max_amount)) {
+                alertBox.classList.remove('hidden');
+                alertMsg.textContent = "Amount is outside the plan limits.";
+                return;
+            }
+
+            if (amount > walletBalance) {
+                alertBox.classList.remove('hidden');
+                alertMsg.textContent = "Insufficient balance. Please deposit funds.";
+                return;
+            }
+
+            try {
+                btn.disabled = true;
+                btnText.classList.add('hidden');
+                loader.classList.remove('hidden');
+
+                /**
+                 * Atomic Transaction via Supabase RPC
+                 * This function in Supabase should:
+                 * 1. Check user balance again.
+                 * 2. Deduct wallet balance.
+                 * 3. Create investment record.
+                 * 4. Create transaction record.
+                 */
+                const { data, error } = await supabase.rpc('process_investment', {
+                    p_plan_id: currentPlan.id,
+                    p_amount: amount
+                });
+
+                if (error) throw error;
+
+                // Redirect to details on success
+                window.location.href = `investment-details.html?id=${data}`;
+
+            } catch (err) {
+                btn.disabled = false;
+                btnText.classList.remove('hidden');
+                loader.classList.add('hidden');
+                alertBox.classList.remove('hidden');
+                alertMsg.textContent = err.message || "An error occurred during investment. Please try again.";
+            }
+        });
+
+        document.getElementById('logout-btn')?.addEventListener('click', async () => {
+            await supabase.auth.signOut();
+            window.location.href = 'login.html';
+        });
+
+        document.addEventListener('DOMContentLoaded', initInvestment);
+    </script>
+</body>
+</html>
