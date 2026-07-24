@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Create Account | EASYPIE - Premium Naira Investments</title>
+    <meta name="description" content="Join EASYPIE and start your journey towards financial freedom with secure Naira investments and daily automated earnings.">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="public/favicon.ico" type="image/x-icon">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Global Styles -->
+    <link rel="stylesheet" href="assets/css/main.css">
+    
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: var(--space-8) var(--space-4);
+            background-color: var(--gray-50);
+        }
+
+        .auth-wrapper {
+            width: 100%;
+            max-width: 480px;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .auth-logo {
+            display: flex;
+            justify-content: center;
+            margin-bottom: var(--space-6);
+        }
+
+        .auth-logo a {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: var(--primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .password-container {
+            position: relative;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray-400);
+            cursor: pointer;
+            padding: 0.5rem;
+            font-size: 0.875rem;
+            transition: var(--transition-base);
+        }
+
+        .toggle-password:hover {
+            color: var(--primary);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            margin-bottom: var(--space-4);
+        }
+
+        .checkbox-group input {
+            margin-top: 0.25rem;
+            width: 18px;
+            height: 18px;
+            accent-color: var(--primary);
+            cursor: pointer;
+        }
+
+        .checkbox-group label {
+            font-size: 0.8125rem;
+            color: var(--gray-600);
+            cursor: pointer;
+            line-height: 1.4;
+        }
+
+        .checkbox-group label a {
+            color: var(--primary);
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        /* Responsive grid for form fields */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: var(--space-1);
+        }
+
+        @media (min-width: 640px) {
+            .form-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: var(--space-4);
+            }
+            .form-grid .full-width {
+                grid-column: span 2;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="auth-wrapper">
+        <!-- Logo -->
+        <div class="auth-logo">
+            <a href="index.html">
+                <i class="fas fa-pie-chart"></i> EASYPIE
+            </a>
+        </div>
+
+        <!-- Registration Card -->
+        <div class="card shadow-premium">
+            <h1 class="text-center m-b-2">Create Account</h1>
+            <p class="text-sm text-center text-muted m-b-6">Join EASYPIE today and start earning daily returns on your Naira.</p>
+
+            <!-- Alert Containers -->
+            <div id="auth-alert" class="alert alert-error hidden" role="alert">
+                <i class="fas fa-exclamation-circle"></i>
+                <span id="alert-message"></span>
+            </div>
+            
+            <div id="auth-success" class="alert alert-success hidden" role="alert">
+                <i class="fas fa-check-circle"></i>
+                <span>Registration successful! Setting up your wallet...</span>
+            </div>
+
+            <!-- Registration Form -->
+            <form id="register-form" novalidate>
+                <div class="form-grid">
+                    <!-- Full Name -->
+                    <div class="form-group full-width">
+                        <label for="fullname" class="label">Full Name</label>
+                        <input type="text" id="fullname" class="input" placeholder="e.g. John Doe" required autocomplete="name">
+                    </div>
+
+                    <!-- Username -->
+                    <div class="form-group">
+                        <label for="username" class="label">Username</label>
+                        <input type="text" id="username" class="input" placeholder="johndoe123" required autocomplete="username">
+                    </div>
+
+                    <!-- Phone Number -->
+                    <div class="form-group">
+                        <label for="phone" class="label">Phone Number</label>
+                        <input type="tel" id="phone" class="input" placeholder="08012345678" required autocomplete="tel">
+                    </div>
+
+                    <!-- Email Address -->
+                    <div class="form-group full-width">
+                        <label for="email" class="label">Email Address</label>
+                        <input type="email" id="email" class="input" placeholder="name@example.com" required autocomplete="email">
+                    </div>
+
+                    <!-- Password -->
+                    <div class="form-group">
+                        <label for="password" class="label">Password</label>
+                        <div class="password-container">
+                            <input type="password" id="password" class="input" placeholder="••••••••" required autocomplete="new-password">
+                            <i class="fas fa-eye toggle-password" data-target="password"></i>
+                        </div>
+                    </div>
+
+                    <!-- Confirm Password -->
+                    <div class="form-group">
+                        <label for="confirm-password" class="label">Confirm Password</label>
+                        <div class="password-container">
+                            <input type="password" id="confirm-password" class="input" placeholder="••••••••" required autocomplete="new-password">
+                            <i class="fas fa-eye toggle-password" data-target="confirm-password"></i>
+                        </div>
+                    </div>
+
+                    <!-- Referral Code -->
+                    <div class="form-group full-width">
+                        <label for="referral" class="label">Referral Code (Optional)</label>
+                        <input type="text" id="referral" class="input" placeholder="Enter code if you have one">
+                    </div>
+                </div>
+
+                <!-- Terms & Privacy -->
+                <div class="m-t-4 m-b-6">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="terms" required>
+                        <label for="terms">I agree to the <a href="terms.html" target="_blank">Terms and Conditions</a> of EASYPIE.</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="privacy" required>
+                        <label for="privacy">I have read and accepted the <a href="privacy.html" target="_blank">Privacy Policy</a>.</label>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" id="register-btn" class="btn btn-primary btn-full">
+                    <span id="btn-text">Create My Account</span>
+                    <div id="btn-loader" class="spinner hidden"></div>
+                </button>
+            </form>
+
+            <!-- Login Link -->
+            <div class="m-t-8 text-center" style="border-top: 1px solid var(--gray-200); padding-top: var(--space-6);">
+                <p class="text-sm">Already have an account? <a href="login.html" class="font-bold text-primary" style="text-decoration: none;">Log In Instead</a></p>
+            </div>
+        </div>
+
+        <!-- Footer Info -->
+        <div class="text-center m-t-8 no-print">
+            <p class="text-xs text-muted">&copy; 2026 EASYPIE Investments. By registering, you confirm you are 18+ years old.</p>
+        </div>
+    </div>
+
+    <!-- Core Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script type="module" src="assets/js/main.js"></script>
+    <script type="module" src="assets/js/auth.js"></script>
+    
+    <!-- Page Specific Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const toggleBtns = document.querySelectorAll('.toggle-password');
+            const registerForm = document.getElementById('register-form');
+
+            // 1. Password Visibility Toggles
+            toggleBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const targetId = btn.getAttribute('data-target');
+                    const input = document.getElementById(targetId);
+                    const isPassword = input.getAttribute('type') === 'password';
+                    input.setAttribute('type', isPassword ? 'text' : 'password');
+                    btn.classList.toggle('fa-eye');
+                    btn.classList.toggle('fa-eye-slash');
+                });
+            });
+
+            // 2. Initial Client-side Validation
+            registerForm.addEventListener('submit', (e) => {
+                const password = document.getElementById('password').value;
+                const confirmPassword = document.getElementById('confirm-password').value;
+                const terms = document.getElementById('terms').checked;
+                const privacy = document.getElementById('privacy').checked;
+                const alertBox = document.getElementById('auth-alert');
+                const alertMsg = document.getElementById('alert-message');
+
+                let error = "";
+
+                if (password !== confirmPassword) {
+                    error = "Passwords do not match.";
+                } else if (password.length < 6) {
+                    error = "Password must be at least 6 characters long.";
+                } else if (!terms || !privacy) {
+                    error = "You must accept the Terms and Privacy Policy.";
+                }
+
+                if (error) {
+                    e.preventDefault();
+                    e.stopImmediatePropagation();
+                    alertBox.classList.remove('hidden');
+                    alertMsg.textContent = error;
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
