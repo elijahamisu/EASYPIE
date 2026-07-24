@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Investment Details | EASYPIE - Premium Naira Investments</title>
+    <meta name="description" content="View detailed statistics, daily earnings logs, and maturity progress for your Naira investment on EASYPIE.">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="public/favicon.ico" type="image/x-icon">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Global Styles -->
+    <link rel="stylesheet" href="assets/css/main.css">
+
+    <style>
+        /* Specific Page Enhancements */
+        .details-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: var(--space-6);
+        }
+
+        @media (min-width: 1024px) {
+            .details-grid {
+                grid-template-columns: 1fr 380px;
+            }
+        }
+
+        .summary-pill {
+            background: var(--gray-100);
+            padding: var(--space-4);
+            border-radius: var(--radius-md);
+            border-left: 4px solid var(--primary);
+        }
+
+        .progress-container {
+            position: relative;
+            background: var(--white);
+            padding: var(--space-6);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--gray-200);
+        }
+
+        .progress-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: var(--space-2);
+            font-size: 0.8125rem;
+            font-weight: 700;
+        }
+
+        .financial-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--space-4);
+        }
+
+        .countdown-box {
+            background: var(--secondary);
+            color: var(--white);
+            padding: var(--space-4);
+            border-radius: var(--radius-md);
+            text-align: center;
+        }
+
+        .countdown-time {
+            font-size: 1.5rem;
+            font-weight: 800;
+            font-variant-numeric: tabular-nums;
+            color: var(--accent);
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            font-size: 0.8125rem;
+            color: var(--gray-500);
+            margin-bottom: var(--space-4);
+        }
+
+        .breadcrumb a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar Navigation (Desktop) -->
+    <aside class="sidebar">
+        <div class="m-b-12">
+            <a href="dashboard.html" class="flex items-center gap-2" style="text-decoration: none;">
+                <i class="fas fa-pie-chart text-white" style="font-size: 1.5rem;"></i>
+                <span style="font-size: 1.25rem; font-weight: 800; color: var(--white);">EASYPIE</span>
+            </a>
+        </div>
+        
+        <nav class="flex flex-col gap-2">
+            <a href="dashboard.html" class="btn btn-ghost justify-start" style="color: var(--gray-300);">
+                <i class="fas fa-grid-2"></i> Dashboard
+            </a>
+            <a href="plans.html" class="btn btn-ghost justify-start" style="color: var(--gray-300);">
+                <i class="fas fa-rocket"></i> Investment Plans
+            </a>
+            <a href="investment.html" class="btn btn-ghost justify-start active" style="color: var(--white); background: rgba(255,255,255,0.1);">
+                <i class="fas fa-chart-line"></i> My Portfolio
+            </a>
+            <a href="wallet.html" class="btn btn-ghost justify-start" style="color: var(--gray-300);">
+                <i class="fas fa-wallet"></i> My Wallet
+            </a>
+            <a href="referral.html" class="btn btn-ghost justify-start" style="color: var(--gray-300);">
+                <i class="fas fa-users"></i> Referrals
+            </a>
+            <hr style="border: none; border-top: 1px solid rgba(255,255,255,0.05); margin: var(--space-4) 0;">
+            <a href="support.html" class="btn btn-ghost justify-start" style="color: var(--gray-300);">
+                <i class="fas fa-headset"></i> Support
+            </a>
+            <button id="logout-btn" class="btn btn-ghost justify-start text-danger" style="margin-top: auto;">
+                <i class="fas fa-sign-out-alt"></i> Sign Out
+            </button>
+        </nav>
+    </aside>
+
+    <!-- Top Navigation (Mobile/Tablet) -->
+    <header class="container" style="height: var(--header-height); display: flex; align-items: center; justify-content: space-between; background: var(--white); border-bottom: 1px solid var(--gray-200); position: sticky; top: 0; z-index: 999;">
+        <div class="flex items-center gap-2">
+            <a href="investment.html" class="btn btn-ghost p-2 md-hidden"><i class="fas fa-arrow-left"></i></a>
+            <h4 class="m-0">Details</h4>
+        </div>
+        <div class="flex items-center gap-4">
+            <div class="text-right hidden sm-block">
+                <p class="text-xs text-muted m-0">Wallet Balance</p>
+                <h4 class="m-0 text-primary">₦<span id="header-balance">0.00</span></h4>
+            </div>
+            <a href="notifications.html" style="color: var(--gray-600);"><i class="fas fa-bell"></i></a>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="container">
+            
+            <!-- Breadcrumbs -->
+            <div class="breadcrumb">
+                <a href="dashboard.html">Dashboard</a>
+                <i class="fas fa-chevron-right" style="font-size: 0.6rem;"></i>
+                <a href="investment.html">Portfolio</a>
+                <i class="fas fa-chevron-right" style="font-size: 0.6rem;"></i>
+                <span>Investment Details</span>
+            </div>
+
+            <!-- Loading State -->
+            <div id="loading-state" class="flex flex-col items-center justify-center p-12">
+                <div class="spinner" style="border-top-color: var(--primary);"></div>
+                <p class="m-t-4 text-muted">Retrieving investment data...</p>
+            </div>
+
+            <!-- Error State -->
+            <div id="error-state" class="hidden">
+                <div class="alert alert-error">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span id="error-msg">Failed to load investment. It may not exist or you don't have permission.</span>
+                </div>
+                <a href="investment.html" class="btn btn-primary">Return to Portfolio</a>
+            </div>
+
+            <!-- Content -->
+            <div id="details-content" class="details-grid hidden">
+                
+                <!-- Left Column: Summary & Progress -->
+                <div class="flex flex-col gap-6">
+                    
+                    <!-- Main Summary Card -->
+                    <div class="card">
+                        <div class="flex justify-between items-start m-b-6">
+                            <div>
+                                <span class="badge badge-success m-b-2" id="plan-category">CATEGORY</span>
+                                <h2 class="m-0" id="plan-name">Plan Name</h2>
+                                <p class="text-xs text-muted m-t-1">ID: <span id="investment-id">#000000</span></p>
+                            </div>
+                            <span id="investment-status" class="badge">STATUS</span>
+                        </div>
+
+                        <div class="financial-grid">
+                            <div class="summary-pill">
+                                <p class="text-xs text-muted uppercase font-bold m-b-1">Invested Amount</p>
+                                <h3 class="m-0">₦<span id="invested-amount">0.00</span></h3>
+                            </div>
+                            <div class="summary-pill" style="border-color: var(--accent);">
+                                <p class="text-xs text-muted uppercase font-bold m-b-1">Current Value</p>
+                                <h3 class="m-0">₦<span id="current-value">0.00</span></h3>
+                            </div>
+                        </div>
+
+                        <div class="m-t-6 m-b-2 flex justify-between items-center">
+                            <span class="text-sm font-semibold">Maturity Progress</span>
+                            <span class="text-sm text-primary font-bold" id="progress-percent">0%</span>
+                        </div>
+                        <div class="skeleton" style="height: 12px; background: var(--gray-100); border-radius: 6px; overflow: hidden; animation: none;">
+                            <div id="progress-fill" style="height: 100%; width: 0%; background: var(--primary); transition: width 1s ease-in-out;"></div>
+                        </div>
+                        <div class="flex justify-between m-t-2 text-xs font-bold text-muted">
+                            <span>Day <span id="days-completed">0</span></span>
+                            <span>Day <span id="total-days">0</span></span>
+                        </div>
+                    </div>
+
+                    <!-- Earnings History Table -->
+                    <div class="card p-0">
+                        <div class="p-6 border-bottom">
+                            <h3 class="m-0">Earnings History</h3>
+                            <p class="text-xs text-muted m-0">Daily credits at 12:00 AM Africa/Lagos</p>
+                        </div>
+                        <div class="table-wrapper" style="border: none; border-radius: 0;">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Amount</th>
+                                        <th>Status</th>
+                                        <th>Ref</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="earnings-table-body">
+                                    <!-- Dynamic rows -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div id="empty-earnings" class="p-8 text-center text-muted hidden">
+                            <i class="fas fa-history m-b-2" style="font-size: 1.5rem;"></i>
+                            <p class="text-sm">No earnings recorded yet. Check back after midnight.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Stats & Actions -->
+                <div class="flex flex-col gap-6">
+                    
+                    <!-- Countdown Card -->
+                    <div class="countdown-box">
+                        <p class="text-xs uppercase font-bold m-b-2" style="opacity: 0.8;">Next Earning In</p>
+                        <div id="countdown-timer" class="countdown-time">00:00:00</div>
+                        <p class="text-xs m-t-2" style="opacity: 0.6;">(Lagos Time 12:00 AM)</p>
+                    </div>
+
+                    <!-- Detailed Stats Card -->
+                    <div class="card">
+                        <h4 class="m-b-4">Financial Overview</h4>
+                        <div class="flex flex-col gap-4">
+                            <div class="flex justify-between">
+                                <span class="text-sm text-muted">Daily ROI</span>
+                                <span class="font-bold text-primary" id="daily-roi">0%</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-sm text-muted">Daily Earning</span>
+                                <span class="font-bold" id="daily-earning">₦0.00</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-sm text-muted">Total Profit Earned</span>
+                                <span class="font-bold" id="total-profit">₦0.00</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-sm text-muted">Remaining ROI</span>
+                                <span class="font-bold" id="remaining-profit">₦0.00</span>
+                            </div>
+                            <hr style="border: none; border-top: 1px solid var(--gray-100);">
+                            <div class="flex justify-between">
+                                <span class="text-sm font-bold">Total Expected Return</span>
+                                <span class="font-bold text-lg" id="total-return">₦0.00</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Date Info Card -->
+                    <div class="card">
+                        <h4 class="m-b-4">Timeline</h4>
+                        <div class="flex flex-col gap-4">
+                            <div class="flex items-center gap-3">
+                                <div style="color: var(--primary);"><i class="fas fa-calendar-plus"></i></div>
+                                <div>
+                                    <p class="text-xs text-muted m-0">Start Date</p>
+                                    <p class="text-sm font-bold m-0" id="start-date">Jan 01, 2026</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <div style="color: var(--accent);"><i class="fas fa-calendar-check"></i></div>
+                                <div>
+                                    <p class="text-xs text-muted m-0">Maturity Date</p>
+                                    <p class="text-sm font-bold m-0" id="end-date">Feb 01, 2026</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Links -->
+                    <div class="flex flex-col gap-3">
+                        <a href="wallet.html" class="btn btn-outline btn-full">
+                            <i class="fas fa-wallet"></i> View Wallet
+                        </a>
+                        <a href="support.html" class="btn btn-outline btn-full">
+                            <i class="fas fa-headset"></i> Contact Support
+                        </a>
+                        <a href="investment.html" class="btn btn-secondary btn-full">
+                            Back to Portfolio
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- Mobile Bottom Navigation -->
+    <nav class="mobile-nav">
+        <a href="dashboard.html" class="nav-item">
+            <i class="fas fa-grid-2"></i>
+            <span>Home</span>
+        </a>
+        <a href="investment.html" class="nav-item active">
+            <i class="fas fa-chart-line"></i>
+            <span>Portfolio</span>
+        </a>
+        <a href="plans.html" class="nav-item">
+            <i class="fas fa-rocket"></i>
+            <span>Invest</span>
+        </a>
+        <a href="wallet.html" class="nav-item">
+            <i class="fas fa-wallet"></i>
+            <span>Wallet</span>
+        </a>
+        <a href="profile.html" class="nav-item">
+            <i class="fas fa-user-circle"></i>
+            <span>Profile</span>
+        </a>
+    </nav>
+
+    <!-- Core Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script type="module">
+        import { supabase } from './assets/js/main.js';
+
+        async function initInvestmentDetails() {
+            // 1. Session check
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // 2. Get Investment ID from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const investmentId = urlParams.get('id');
+
+            if (!investmentId) {
+                showError("No investment specified.");
+                return;
+            }
+
+            try {
+                // 3. Fetch Investment with Plan Details
+                const { data: investment, error } = await supabase
+                    .from('investments')
+                    .select('*, plans(*)')
+                    .eq('id', investmentId)
+                    .eq('user_id', session.user.id)
+                    .single();
+
+                if (error || !investment) throw new Error("Investment not found.");
+
+                // 4. Fetch Wallet for Header
+                const { data: wallet } = await supabase.from('wallets').select('balance').eq('user_id', session.user.id).single();
+                if (wallet) document.getElementById('header-balance').textContent = wallet.balance.toLocaleString('en-NG', { minimumFractionDigits: 2 });
+
+                // 5. Render Data
+                renderInvestment(investment);
+                fetchEarningsLogs(investmentId);
+                startCountdown();
+
+            } catch (err) {
+                showError(err.message);
+            }
+        }
+
+        function renderInvestment(inv) {
+            document.getElementById('loading-state').classList.add('hidden');
+            document.getElementById('details-content').classList.remove('hidden');
+
+            const plan = inv.plans;
+            const startDate = new Date(inv.created_at);
+            const endDate = new Date(inv.maturity_date);
+            const now = new Date();
+            
+            // Calculate Progress
+            const totalMs = endDate - startDate;
+            const elapsedMs = now - startDate;
+            const progress = Math.min(Math.max((elapsedMs / totalMs) * 100, 0), 100);
+            const daysDone = Math.min(Math.floor(elapsedMs / (1000 * 60 * 60 * 24)), plan.duration);
+
+            // Populate UI
+            document.getElementById('plan-name').textContent = plan.name;
+            document.getElementById('plan-category').textContent = plan.category;
+            document.getElementById('investment-id').textContent = '#' + inv.id.substring(0, 8).toUpperCase();
+            document.getElementById('invested-amount').textContent = inv.amount.toLocaleString('en-NG', { minimumFractionDigits: 2 });
+            document.getElementById('daily-roi').textContent = plan.daily_roi + '%';
+            
+            const dailyEarning = inv.amount * (plan.daily_roi / 100);
+            document.getElementById('daily-earning').textContent = '₦' + dailyEarning.toLocaleString('en-NG', { minimumFractionDigits: 2 });
+            
+            const totalProfitEarned = dailyEarning * daysDone;
+            document.getElementById('total-profit').textContent = '₦' + totalProfitEarned.toLocaleString('en-NG', { minimumFractionDigits: 2 });
+            document.getElementById('current-value').textContent = (inv.amount + totalProfitEarned).toLocaleString('en-NG', { minimumFractionDigits: 2 });
+            
+            const totalExpectedReturn = inv.amount + (dailyEarning * plan.duration);
+            document.getElementById('total-return').textContent = '₦' + totalExpectedReturn.toLocaleString('en-NG', { minimumFractionDigits: 2 });
+            document.getElementById('remaining-profit').textContent = '₦' + (totalExpectedReturn - (inv.amount + totalProfitEarned)).toLocaleString('en-NG', { minimumFractionDigits: 2 });
+
+            document.getElementById('start-date').textContent = startDate.toLocaleDateString('en-NG', { year: 'numeric', month: 'short', day: 'numeric' });
+            document.getElementById('end-date').textContent = endDate.toLocaleDateString('en-NG', { year: 'numeric', month: 'short', day: 'numeric' });
+            
+            document.getElementById('progress-percent').textContent = progress.toFixed(1) + '%';
+            document.getElementById('progress-fill').style.width = progress + '%';
+            document.getElementById('days-completed').textContent = daysDone;
+            document.getElementById('total-days').textContent = plan.duration;
+
+            const statusEl = document.getElementById('investment-status');
+            statusEl.textContent = inv.status.toUpperCase();
+            if (inv.status === 'active') statusEl.className = 'badge badge-success';
+            else if (inv.status === 'completed') statusEl.className = 'badge badge-info';
+            else statusEl.className = 'badge badge-warning';
+        }
+
+        async function fetchEarningsLogs(invId) {
+            const { data: logs, error } = await supabase
+                .from('earnings')
+                .select('*')
+                .eq('investment_id', invId)
+                .order('created_at', { ascending: false });
+
+            const tbody = document.getElementById('earnings-table-body');
+            tbody.innerHTML = '';
+
+            if (!logs || logs.length === 0) {
+                document.getElementById('empty-earnings').classList.remove('hidden');
+                return;
+            }
+
+            logs.forEach(log => {
+                const row = `
+                    <tr>
+                        <td class="text-xs">${new Date(log.created_at).toLocaleDateString()}</td>
+                        <td class="font-bold text-primary">₦${log.amount.toLocaleString()}</td>
+                        <td><span class="badge badge-success">Credited</span></td>
+                        <td class="text-xs text-muted">${log.id.substring(0, 6)}</td>
+                    </tr>
+                `;
+                tbody.innerHTML += row;
+            });
+        }
+
+        function startCountdown() {
+            const timerEl = document.getElementById('countdown-timer');
+            
+            function update() {
+                const now = new Date();
+                // Lagos is UTC+1. Calculate time until next UTC midnight (or Lagos midnight)
+                // Simply: next midnight in local time if user is in Lagos.
+                const nextMidnight = new Date();
+                nextMidnight.setHours(24, 0, 0, 0);
+                
+                const diff = nextMidnight - now;
+                
+                const h = Math.floor(diff / 3600000);
+                const m = Math.floor((diff % 3600000) / 60000);
+                const s = Math.floor((diff % 60000) / 1000);
+                
+                timerEl.textContent = 
+                    `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+            }
+            
+            setInterval(update, 1000);
+            update();
+        }
+
+        function showError(msg) {
+            document.getElementById('loading-state').classList.add('hidden');
+            document.getElementById('error-state').classList.remove('hidden');
+            document.getElementById('error-msg').textContent = msg;
+        }
+
+        document.getElementById('logout-btn')?.addEventListener('click', async () => {
+            await supabase.auth.signOut();
+            window.location.href = 'login.html';
+        });
+
+        document.addEventListener('DOMContentLoaded', initInvestmentDetails);
+    </script>
+</body>
+</html>
