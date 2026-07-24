@@ -1,45 +1,44 @@
-EASYPIE - Git Ignore Configuration
+Dependency directories
 
-Dependencies
-
-node_modules/ jspm_packages/ package-lock.json
-
-Environment Variables
-
-.env .env.local .env.development.local .env.test.local .env.production.local
-.env*.local
-
-Vercel
-
-.vercel .vercel/project.json
-
-Supabase
-
-Ignore local database states and storage backups
-
-supabase/.temp/ supabase/migrations/.internal/ supabase/storage/*
-!supabase/storage/.gitkeep
-
-Operating System Files
-
-.DS_Store .DS_Store? ._* Thumbs.db ehthumbs.db Desktop.ini
-
-IDE / Editor Files
-
-.vscode/ .idea/ *.suo .ntvs *.njsproj *.sln *.sw?
+node_modules/ jspm_packages/
 
 Logs
 
 logs .log npm-debug.log yarn-debug.log* yarn-error.log* pnpm-debug.log*
 
-Testing & Coverage
+Environment variables
 
-/coverage .nyc_output
+.env .env.local .env.development.local .env.test.local .env.production.local
+.env*.local
 
-Temporary / Cache Files
+Keep .env.example for other developers
 
-.cache/ .eslintcache .prettiercache tmp/ temp/ .npm .eslintcache
+!.env.example
 
-Build/Dist (if any build steps are added later)
+Vercel
 
-dist/ out/ build/
+.vercel
+
+Supabase
+
+.supabase/ supabase/.temp/
+
+Build and static output
+
+dist/ build/ out/ .next/ bin/ obj/
+
+Testing
+
+coverage/ .nyc_output/
+
+IDEs and Editors
+
+.vscode/ !.vscode/extensions.json .idea/ *.suo .ntvs *.njsproj *.sln *.sw?
+
+Operating System Files
+
+.DS_Store .DS_Store? ._* Thumbs.db desktop.ini
+
+Temporary files
+
+.tmp/ temp/ tmp/ .cache/ .eslintcache .stylelintcache .prettiercache
