@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>My Wallet | EASYPIE - Premium Naira Investments</title>
-    <meta name="description" content="Manage your funds, track daily earnings, and view your transaction history on EASYPIE.">
+    <meta name="description" content="Manage your EASYPIE wallet, track transactions, and monitor your referral earnings.">
     
     <!-- Favicon -->
     <link rel="icon" href="public/favicon.ico" type="image/x-icon">
@@ -21,93 +21,105 @@
     <link rel="stylesheet" href="assets/css/main.css">
 
     <style>
-        /* Wallet Specific UI Enhancements */
-        .wallet-summary-grid {
+        .wallet-overview-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: var(--space-4);
-            margin-bottom: var(--space-8);
-        }
-
-        @media (min-width: 768px) {
-            .wallet-summary-grid {
-                grid-template-columns: repeat(4, 1fr);
-            }
-        }
-
-        .balance-item {
-            background: var(--white);
-            padding: var(--space-4);
-            border-radius: var(--radius-lg);
-            border: 1px solid var(--gray-200);
-            transition: var(--transition-base);
-        }
-
-        .balance-item:hover {
-            border-color: var(--primary-light);
-            background-color: var(--gray-50);
-        }
-
-        .action-card-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: var(--space-4);
-            margin-bottom: var(--space-8);
+            grid-template-columns: 1fr;
+            gap: var(--space-6);
         }
 
         @media (min-width: 1024px) {
-            .action-card-grid {
+            .wallet-overview-grid {
+                grid-template-columns: 1.5fr 1fr;
+            }
+        }
+
+        .mini-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--space-4);
+        }
+
+        @media (min-width: 640px) {
+            .mini-stats-grid {
                 grid-template-columns: repeat(3, 1fr);
             }
         }
 
-        .activity-header {
+        .action-icon-box {
             display: flex;
             flex-direction: column;
-            gap: var(--space-4);
-            margin-bottom: var(--space-4);
-        }
-
-        @media (min-width: 768px) {
-            .activity-header {
-                flex-direction: row;
-                align-items: center;
-                justify-content: space-between;
-            }
-        }
-
-        .filter-group {
-            display: flex;
+            align-items: center;
             gap: var(--space-2);
-            overflow-x: auto;
-            padding-bottom: var(--space-2);
-            scrollbar-width: none;
-        }
-
-        .filter-group::-webkit-scrollbar { display: none; }
-
-        .balance-toggle {
-            cursor: pointer;
-            opacity: 0.7;
+            text-decoration: none;
+            color: var(--gray-700);
             transition: var(--transition-base);
         }
 
-        .balance-toggle:hover { opacity: 1; }
+        .action-icon-box:hover {
+            color: var(--primary);
+            transform: translateY(-2px);
+        }
 
-        .bonus-badge {
-            background: linear-gradient(90deg, var(--accent), #d97706);
-            color: white;
+        .icon-circle {
+            width: 50px;
+            height: 50px;
+            background: var(--white);
+            border: 1px solid var(--gray-200);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .referral-link-container {
+            background: var(--gray-100);
+            padding: var(--space-3);
+            border-radius: var(--radius-md);
+            border: 1px dashed var(--gray-300);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: var(--space-4);
+        }
+
+        .referral-link-container code {
+            font-family: monospace;
+            font-size: 0.8125rem;
+            color: var(--gray-600);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            font-size: 0.8125rem;
+            color: var(--gray-500);
+            margin-bottom: var(--space-4);
+        }
+
+        .breadcrumb a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .status-pill-active {
+            background: var(--primary-light);
+            color: var(--primary-dark);
             padding: 2px 8px;
             border-radius: var(--radius-full);
-            font-size: 0.65rem;
+            font-size: 0.7rem;
             font-weight: 800;
-            text-transform: uppercase;
         }
     </style>
 </head>
 <body>
 
-    <!-- Sidebar Navigation (Desktop) -->
+    <!-- Sidebar Navigation -->
     <aside class="sidebar">
         <div class="m-b-12">
             <a href="dashboard.html" class="flex items-center gap-2" style="text-decoration: none;">
@@ -133,9 +145,6 @@
                 <i class="fas fa-users"></i> Referrals
             </a>
             <hr style="border: none; border-top: 1px solid rgba(255,255,255,0.05); margin: var(--space-4) 0;">
-            <a href="transactions.html" class="btn btn-ghost justify-start" style="color: var(--gray-300);">
-                <i class="fas fa-list-ul"></i> Transactions
-            </a>
             <a href="profile.html" class="btn btn-ghost justify-start" style="color: var(--gray-300);">
                 <i class="fas fa-user-circle"></i> Profile
             </a>
@@ -145,147 +154,196 @@
         </nav>
     </aside>
 
-    <!-- Top Navigation (Mobile) -->
+    <!-- Header Section -->
     <header class="container" style="height: var(--header-height); display: flex; align-items: center; justify-content: space-between; background: var(--white); border-bottom: 1px solid var(--gray-200); position: sticky; top: 0; z-index: 999;">
-        <div class="flex items-center gap-2">
-            <h4 class="m-0">Wallet Dashboard</h4>
+        <div class="breadcrumb">
+            <a href="dashboard.html">Dashboard</a>
+            <i class="fas fa-chevron-right" style="font-size: 0.6rem;"></i>
+            <span>Wallet</span>
         </div>
         <div class="flex items-center gap-4">
-            <a href="notifications.html" style="color: var(--gray-600);"><i class="fas fa-bell"></i></a>
-            <div style="width: 36px; height: 36px; background: var(--gray-100); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                <i class="fas fa-user text-gray-500"></i>
+            <a href="notifications.html" style="color: var(--gray-600); position: relative;">
+                <i class="fas fa-bell"></i>
+                <span class="badge badge-danger" style="position: absolute; top: -8px; right: -8px; font-size: 0.5rem; padding: 2px 4px;">0</span>
+            </a>
+            <div style="width: 36px; height: 36px; background: var(--primary-light); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                <i class="fas fa-user text-primary" style="font-size: 0.9rem;"></i>
             </div>
         </div>
     </header>
 
     <main class="main-content">
         <div class="container">
-
-            <!-- Main Balance Card -->
+            
             <div class="m-b-8">
-                <div class="wallet-card">
-                    <div class="flex justify-between items-start">
+                <h1 class="m-b-1">Wallet Management</h1>
+                <p class="text-sm text-muted">View your balance, payouts, and comprehensive transaction history.</p>
+            </div>
+
+            <!-- Loading State -->
+            <div id="wallet-loader" class="flex flex-col items-center justify-center p-12">
+                <div class="spinner" style="border-top-color: var(--primary);"></div>
+            </div>
+
+            <!-- Wallet UI (Hidden until data loads) -->
+            <div id="wallet-content" class="hidden">
+                
+                <div class="wallet-overview-grid m-b-8">
+                    <!-- Main Balance Card -->
+                    <div class="wallet-card">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-xs uppercase font-bold m-b-1" style="opacity: 0.8;">Available Balance</p>
+                                <h1 class="wallet-balance m-0">₦<span id="bal-available">0.00</span></h1>
+                            </div>
+                            <span class="status-pill-active">Wallet Active</span>
+                        </div>
+                        <div class="flex gap-4 m-t-8">
+                            <a href="deposit.html" class="btn btn-secondary btn-sm flex-1">
+                                <i class="fas fa-plus-circle"></i> Deposit
+                            </a>
+                            <a href="withdraw.html" class="btn btn-outline btn-sm flex-1" style="background: rgba(255,255,255,0.15); border-color: transparent; color: white;">
+                                <i class="fas fa-arrow-up"></i> Withdraw
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Welcome & Profit Summary -->
+                    <div class="card flex flex-col justify-between">
+                        <div class="mini-stats-grid">
+                            <div>
+                                <p class="text-xs text-muted uppercase font-bold m-b-1">Total Profit</p>
+                                <h4 class="m-0 text-primary">₦<span id="stat-profit">0.00</span></h4>
+                            </div>
+                            <div>
+                                <p class="text-xs text-muted uppercase font-bold m-b-1">Welcome Bonus</p>
+                                <h4 class="m-0">₦<span id="stat-welcome">500.00</span></h4>
+                            </div>
+                            <div>
+                                <p class="text-xs text-muted uppercase font-bold m-b-1">Active Plans</p>
+                                <h4 class="m-0" id="stat-active-investments">0</h4>
+                            </div>
+                        </div>
+                        <hr class="m-v-4" style="border: none; border-top: 1px solid var(--gray-100);">
                         <div>
-                            <p class="text-sm m-b-1" style="opacity: 0.85;">Total Available Balance</p>
-                            <h1 class="wallet-balance m-0">
-                                ₦<span id="main-balance">0.00</span>
-                                <i class="fas fa-eye-slash text-sm m-l-2 balance-toggle" id="toggle-visibility"></i>
-                            </h1>
+                            <p class="text-xs text-muted uppercase font-bold m-b-2">Quick Actions</p>
+                            <div class="flex justify-between">
+                                <a href="plans.html" class="action-icon-box">
+                                    <div class="icon-circle"><i class="fas fa-rocket"></i></div>
+                                    <span class="text-xs font-bold">Invest</span>
+                                </a>
+                                <a href="earnings.html" class="action-icon-box">
+                                    <div class="icon-circle"><i class="fas fa-coins"></i></div>
+                                    <span class="text-xs font-bold">Earnings</span>
+                                </a>
+                                <a href="referral.html" class="action-icon-box">
+                                    <div class="icon-circle"><i class="fas fa-users"></i></div>
+                                    <span class="text-xs font-bold">Referral</span>
+                                </a>
+                                <a href="support.html" class="action-icon-box">
+                                    <div class="icon-circle"><i class="fas fa-headset"></i></div>
+                                    <span class="text-xs font-bold">Help</span>
+                                </a>
+                            </div>
                         </div>
-                        <div class="flex flex-col items-end">
-                            <span class="bonus-badge m-b-2">Verified Account</span>
-                            <p class="text-xs m-0" style="opacity: 0.7;">Lagos, NG (UTC+1)</p>
+                    </div>
+                </div>
+
+                <!-- Stats Grid Row -->
+                <div class="mini-stats-grid m-b-8">
+                    <div class="card p-4">
+                        <p class="text-xs text-muted uppercase font-bold m-b-1">Total Deposits</p>
+                        <h3 class="m-0" id="stat-deposits">₦0.00</h3>
+                        <a href="deposit-history.html" class="text-xs text-primary font-bold">History</a>
+                    </div>
+                    <div class="card p-4">
+                        <p class="text-xs text-muted uppercase font-bold m-b-1">Total Investments</p>
+                        <h3 class="m-0" id="stat-investments">₦0.00</h3>
+                        <a href="investment.html" class="text-xs text-primary font-bold">Portfolio</a>
+                    </div>
+                    <div class="card p-4">
+                        <p class="text-xs text-muted uppercase font-bold m-b-1">Daily Accruals</p>
+                        <h3 class="m-0" id="stat-daily">₦0.00</h3>
+                        <a href="earnings.html" class="text-xs text-primary font-bold">Log</a>
+                    </div>
+                    <div class="card p-4">
+                        <p class="text-xs text-muted uppercase font-bold m-b-1">Ref. Commission</p>
+                        <h3 class="m-0 text-primary" id="stat-referral">₦0.00</h3>
+                        <span class="text-xs text-muted">20% Rate</span>
+                    </div>
+                    <div class="card p-4">
+                        <p class="text-xs text-muted uppercase font-bold m-b-1">Total Withdrawals</p>
+                        <h3 class="m-0" id="stat-withdrawals">₦0.00</h3>
+                        <a href="withdrawal-history.html" class="text-xs text-primary font-bold">History</a>
+                    </div>
+                    <div class="card p-4">
+                        <p class="text-xs text-muted uppercase font-bold m-b-1">Pending Actions</p>
+                        <div class="flex gap-2">
+                            <span class="text-xs font-bold" id="stat-pending-dep">0 Deposits</span>
+                            <span class="text-xs text-muted">|</span>
+                            <span class="text-xs font-bold" id="stat-pending-with">0 Withdr.</span>
                         </div>
                     </div>
-                    <div class="flex gap-4 m-t-8">
-                        <a href="deposit.html" class="btn btn-secondary btn-sm flex-1">
-                            <i class="fas fa-plus-circle"></i> Deposit
-                        </a>
-                        <a href="withdraw.html" class="btn btn-outline btn-sm flex-1" style="background: rgba(255,255,255,0.15); border-color: transparent; color: white;">
-                            <i class="fas fa-arrow-up"></i> Withdraw
-                        </a>
+                </div>
+
+                <!-- Referral Section -->
+                <div class="card m-b-8">
+                    <div class="flex justify-between items-center m-b-4">
+                        <h3 class="m-0">Refer & Earn 20%</h3>
+                        <a href="referral.html" class="btn btn-outline btn-sm">Full Stats</a>
+                    </div>
+                    <p class="text-sm text-muted">Earn 20% commission immediately when your referred friends complete their investments. Your unique referral details are below:</p>
+                    
+                    <div class="grid md-grid-cols-2 gap-6 m-t-6">
+                        <div>
+                            <label class="label">Your Referral Code</label>
+                            <div class="referral-link-container">
+                                <code id="ref-code-text">LOADING...</code>
+                                <button class="btn btn-ghost btn-sm" onclick="copyToClipboard('ref-code-text')"><i class="fas fa-copy"></i></button>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="label">Your Referral Link</label>
+                            <div class="referral-link-container">
+                                <code id="ref-link-text">LOADING...</code>
+                                <button class="btn btn-ghost btn-sm" onclick="copyToClipboard('ref-link-text')"><i class="fas fa-link"></i></button>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Balance Breakdowns -->
-            <div class="wallet-summary-grid">
-                <div class="balance-item">
-                    <p class="text-xs text-muted uppercase font-bold m-b-1">Investments</p>
-                    <h3 class="m-0" id="stat-invest-bal">₦0.00</h3>
+                <!-- Transactions Table -->
+                <div class="flex justify-between items-center m-b-4">
+                    <h3 class="m-0">Wallet Transactions</h3>
+                    <a href="transactions.html" class="text-sm font-bold text-primary">View All</a>
                 </div>
-                <div class="balance-item">
-                    <p class="text-xs text-muted uppercase font-bold m-b-1">Referral Bonus</p>
-                    <h3 class="m-0" id="stat-ref-bal">₦0.00</h3>
-                </div>
-                <div class="balance-item">
-                    <p class="text-xs text-muted uppercase font-bold m-b-1">Total Profits</p>
-                    <h3 class="m-0 text-primary" id="stat-profit-bal">₦0.00</h3>
-                </div>
-                <div class="balance-item">
-                    <p class="text-xs text-muted uppercase font-bold m-b-1">Welcome Bonus</p>
-                    <h3 class="m-0" id="stat-welcome-bal">₦500.00</h3>
-                </div>
-            </div>
-
-            <!-- Quick Actions -->
-            <h3 class="m-b-4">Quick Actions</h3>
-            <div class="action-card-grid">
-                <a href="plans.html" class="card card-interactive p-4 flex items-center gap-4" style="text-decoration: none;">
-                    <div class="btn btn-primary btn-sm p-0" style="width: 40px; height: 40px;"><i class="fas fa-rocket"></i></div>
-                    <div>
-                        <h4 class="m-0 text-sm">Invest Now</h4>
-                        <p class="text-xs text-muted m-0">Start earning daily</p>
-                    </div>
-                </a>
-                <a href="earnings.html" class="card card-interactive p-4 flex items-center gap-4" style="text-decoration: none;">
-                    <div class="btn btn-secondary btn-sm p-0" style="width: 40px; height: 40px; background: var(--success);"><i class="fas fa-coins"></i></div>
-                    <div>
-                        <h4 class="m-0 text-sm">Earnings Log</h4>
-                        <p class="text-xs text-muted m-0">Track ROI credits</p>
-                    </div>
-                </a>
-                <a href="referral.html" class="card card-interactive p-4 flex items-center gap-4" style="text-decoration: none;">
-                    <div class="btn btn-secondary btn-sm p-0" style="width: 40px; height: 40px; background: var(--info);"><i class="fas fa-users"></i></div>
-                    <div>
-                        <h4 class="m-0 text-sm">Refer & Earn</h4>
-                        <p class="text-xs text-muted m-0">Get 5% commission</p>
-                    </div>
-                </a>
-            </div>
-
-            <!-- Recent Activity Table -->
-            <div class="activity-header">
-                <h3 class="m-0">Recent Activity</h3>
-                <div class="flex gap-2">
-                    <input type="text" id="tx-search" class="input p-2 text-sm" style="max-width: 200px;" placeholder="Search reference...">
-                    <select id="tx-filter" class="select p-2 text-sm" style="max-width: 150px;">
-                        <option value="all">All Types</option>
-                        <option value="deposit">Deposits</option>
-                        <option value="withdrawal">Withdrawals</option>
-                        <option value="earnings">ROI Earnings</option>
-                        <option value="referral">Referrals</option>
-                        <option value="bonus">Bonuses</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="card p-0 m-b-12">
-                <div class="table-wrapper" style="border: none;">
+                <div class="table-wrapper m-b-12">
                     <table>
                         <thead>
                             <tr>
-                                <th>Date</th>
+                                <th>Reference</th>
                                 <th>Type</th>
-                                <th>Description</th>
                                 <th>Amount</th>
+                                <th>Balance After</th>
                                 <th>Status</th>
-                                <th>Balance</th>
+                                <th>Date</th>
                             </tr>
                         </thead>
-                        <tbody id="tx-body">
-                            <!-- Loading State -->
-                            <tr>
-                                <td colspan="6" class="text-center p-12">
-                                    <div class="spinner" style="margin: 0 auto; border-top-color: var(--primary);"></div>
-                                    <p class="m-t-4 text-muted">Loading transactions...</p>
-                                </td>
-                            </tr>
+                        <tbody id="tx-table-body">
+                            <!-- JS Dynamic Content -->
                         </tbody>
                     </table>
+                    <div id="tx-empty" class="p-12 text-center text-muted hidden">
+                        <i class="fas fa-receipt m-b-4" style="font-size: 2rem; opacity: 0.1;"></i>
+                        <p>No transactions found in your history.</p>
+                    </div>
                 </div>
-                <!-- Pagination -->
-                <div id="pagination-controls" class="p-4 flex justify-between items-center border-top">
-                    <button id="prev-page" class="btn btn-outline btn-sm" disabled>Previous</button>
-                    <span class="text-xs font-bold text-muted">Page <span id="current-page">1</span></span>
-                    <button id="next-page" class="btn btn-outline btn-sm">Next</button>
-                </div>
-            </div>
 
+            </div>
         </div>
     </main>
 
-    <!-- Mobile Bottom Navigation -->
+    <!-- Mobile Navigation -->
     <nav class="mobile-nav">
         <a href="dashboard.html" class="nav-item">
             <i class="fas fa-grid-2"></i>
@@ -309,17 +367,13 @@
         </a>
     </nav>
 
-    <!-- Core Scripts -->
+    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script type="module">
         import { supabase } from './assets/js/main.js';
 
-        let balancesVisible = true;
-        let currentPage = 1;
-        const perPage = 10;
-
         async function initWallet() {
-            // 1. Session Protection
+            // 1. Session check
             const { data: { session } } = await supabase.auth.getSession();
             if (!session) {
                 window.location.href = 'login.html';
@@ -328,153 +382,100 @@
 
             const userId = session.user.id;
 
-            // 2. Load Wallet Statistics
-            fetchWalletData(userId);
-            
-            // 3. Load Transactions
-            fetchTransactions(userId);
-
-            // 4. Setup Event Listeners
-            setupEventListeners(userId);
-        }
-
-        async function fetchWalletData(userId) {
             try {
-                const { data: wallet, error } = await supabase
+                // 2. Fetch Wallet Data
+                const { data: wallet, error: walletErr } = await supabase
                     .from('wallets')
                     .select('*')
                     .eq('user_id', userId)
                     .single();
 
-                if (error) throw error;
+                if (walletErr) throw walletErr;
 
-                // Credit Welcome Bonus if not already done (Handled by backend ideally, but UI check)
-                // Assuming wallet has a boolean flag 'welcome_bonus_claimed'
-                
-                document.getElementById('main-balance').textContent = wallet.balance.toLocaleString('en-NG', { minimumFractionDigits: 2 });
-                document.getElementById('stat-invest-bal').textContent = '₦' + wallet.total_invested.toLocaleString();
-                document.getElementById('stat-ref-bal').textContent = '₦' + wallet.referral_earnings.toLocaleString();
-                document.getElementById('stat-profit-bal').textContent = '₦' + wallet.total_profit.toLocaleString();
-                
+                // 3. Fetch Referral Code from Profile
+                const { data: profile } = await supabase
+                    .from('profiles')
+                    .select('username, referral_code')
+                    .eq('id', userId)
+                    .single();
+
+                // 4. Fetch Transaction History
+                const { data: transactions } = await supabase
+                    .from('transactions')
+                    .select('*')
+                    .eq('user_id', userId)
+                    .order('created_at', { ascending: false })
+                    .limit(10);
+
+                // 5. Update UI
+                updateUI(wallet, profile, transactions);
+
             } catch (err) {
-                console.error("Wallet Fetch Error:", err);
+                console.error("Wallet Error:", err);
+                alert("Failed to load wallet data. Please refresh.");
             }
         }
 
-        async function fetchTransactions(userId) {
-            const tbody = document.getElementById('tx-body');
-            const typeFilter = document.getElementById('tx-filter').value;
-            const searchVal = document.getElementById('tx-search').value.trim();
+        function updateUI(wallet, profile, transactions) {
+            document.getElementById('wallet-loader').classList.add('hidden');
+            document.getElementById('wallet-content').classList.remove('hidden');
 
-            try {
-                let query = supabase
-                    .from('transactions')
-                    .select('*', { count: 'exact' })
-                    .eq('user_id', userId)
-                    .order('created_at', { ascending: false })
-                    .range((currentPage - 1) * perPage, currentPage * perPage - 1);
+            // Balance & Stats
+            document.getElementById('bal-available').textContent = wallet.balance.toLocaleString('en-NG', { minimumFractionDigits: 2 });
+            document.getElementById('header-balance').textContent = wallet.balance.toLocaleString('en-NG', { minimumFractionDigits: 2 });
+            document.getElementById('stat-profit').textContent = wallet.total_profit.toLocaleString('en-NG', { minimumFractionDigits: 2 });
+            document.getElementById('stat-deposits').textContent = '₦' + wallet.total_deposits.toLocaleString();
+            document.getElementById('stat-investments').textContent = '₦' + wallet.total_investments.toLocaleString();
+            document.getElementById('stat-daily').textContent = '₦' + wallet.total_earnings.toLocaleString();
+            document.getElementById('stat-referral').textContent = '₦' + (wallet.referral_earnings || 0).toLocaleString();
+            document.getElementById('stat-withdrawals').textContent = '₦' + wallet.total_withdrawals.toLocaleString();
+            
+            // Referral UI
+            if (profile) {
+                const refCode = profile.referral_code || profile.username || 'USER';
+                const refLink = window.location.origin + '/register.html?ref=' + refCode;
+                document.getElementById('ref-code-text').textContent = refCode;
+                document.getElementById('ref-link-text').textContent = refLink;
+            }
 
-                if (typeFilter !== 'all') query = query.eq('type', typeFilter);
-                if (searchVal) query = query.ilike('reference', `%${searchVal}%`);
+            // Transactions Table
+            const tbody = document.getElementById('tx-table-body');
+            tbody.innerHTML = '';
 
-                const { data, count, error } = await query;
-
-                if (error) throw error;
-
-                tbody.innerHTML = '';
-
-                if (!data || data.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="6" class="text-center p-12 text-muted">No transactions matching your criteria.</td></tr>';
-                    document.getElementById('next-page').disabled = true;
-                    return;
-                }
-
-                data.forEach(tx => {
+            if (!transactions || transactions.length === 0) {
+                document.getElementById('tx-empty').classList.remove('hidden');
+            } else {
+                transactions.forEach(tx => {
                     const statusClass = tx.status === 'completed' ? 'badge-success' : (tx.status === 'pending' ? 'badge-warning' : 'badge-danger');
-                    const amountClass = tx.amount >= 0 ? 'text-primary' : 'text-danger';
-                    const amountPrefix = tx.amount >= 0 ? '+' : '';
-
+                    const amountClass = tx.type === 'deposit' || tx.type === 'earning' || tx.type === 'referral' ? 'text-primary' : 'text-danger';
+                    const symbol = tx.type === 'deposit' || tx.type === 'earning' || tx.type === 'referral' ? '+' : '-';
+                    
                     const row = `
                         <tr>
-                            <td class="text-xs text-muted">${new Date(tx.created_at).toLocaleDateString()}</td>
-                            <td><span class="badge badge-success" style="background: var(--gray-100); color: var(--gray-700);">${tx.type}</span></td>
-                            <td class="text-xs font-medium">${tx.description}</td>
-                            <td class="${amountClass} font-bold">${amountPrefix}₦${Math.abs(tx.amount).toLocaleString()}</td>
+                            <td class="text-xs font-bold font-mono">#${tx.id.substring(0,8).toUpperCase()}</td>
+                            <td class="text-xs uppercase font-bold">${tx.type}</td>
+                            <td class="${amountClass} font-bold">${symbol}₦${Math.abs(tx.amount).toLocaleString()}</td>
+                            <td class="text-muted">₦${tx.new_balance.toLocaleString()}</td>
                             <td><span class="badge ${statusClass}">${tx.status}</span></td>
-                            <td class="text-xs font-bold">₦${tx.balance_after.toLocaleString()}</td>
+                            <td class="text-xs text-muted">${new Date(tx.created_at).toLocaleString('en-NG', { dateStyle: 'medium', timeStyle: 'short'})}</td>
                         </tr>
                     `;
                     tbody.innerHTML += row;
                 });
-
-                document.getElementById('next-page').disabled = count <= (currentPage * perPage);
-                document.getElementById('prev-page').disabled = currentPage === 1;
-
-            } catch (err) {
-                tbody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">Error: ${err.message}</td></tr>`;
             }
         }
 
-        function setupEventListeners(userId) {
-            // Visibility Toggle
-            document.getElementById('toggle-visibility').addEventListener('click', function() {
-                balancesVisible = !balancesVisible;
-                const els = [
-                    document.getElementById('main-balance'),
-                    document.getElementById('stat-invest-bal'),
-                    document.getElementById('stat-ref-bal'),
-                    document.getElementById('stat-profit-bal'),
-                    document.getElementById('stat-welcome-bal')
-                ];
-                
-                if (!balancesVisible) {
-                    els.forEach(el => el.dataset.val = el.textContent);
-                    els.forEach(el => el.textContent = '••••••');
-                    this.className = 'fas fa-eye text-sm m-l-2 balance-toggle';
-                } else {
-                    els.forEach(el => el.textContent = el.dataset.val);
-                    this.className = 'fas fa-eye-slash text-sm m-l-2 balance-toggle';
-                }
+        window.copyToClipboard = function(elementId) {
+            const text = document.getElementById(elementId).innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                alert("Copied to clipboard!");
             });
+        };
 
-            // Filtering
-            document.getElementById('tx-filter').addEventListener('change', () => {
-                currentPage = 1;
-                fetchTransactions(userId);
-            });
-
-            document.getElementById('tx-search').addEventListener('input', debounce(() => {
-                currentPage = 1;
-                fetchTransactions(userId);
-            }, 500));
-
-            // Pagination
-            document.getElementById('prev-page').addEventListener('click', () => {
-                if (currentPage > 1) {
-                    currentPage--;
-                    fetchTransactions(userId);
-                }
-            });
-
-            document.getElementById('next-page').addEventListener('click', () => {
-                currentPage++;
-                fetchTransactions(userId);
-            });
-
-            // Logout
-            document.getElementById('logout-btn').addEventListener('click', async () => {
-                await supabase.auth.signOut();
-                window.location.href = 'login.html';
-            });
-        }
-
-        function debounce(func, timeout = 300) {
-            let timer;
-            return (...args) => {
-                clearTimeout(timer);
-                timer = setTimeout(() => { func.apply(this, args); }, timeout);
-            };
-        }
+        document.getElementById('logout-btn')?.addEventListener('click', async () => {
+            await supabase.auth.signOut();
+            window.location.href = 'login.html';
+        });
 
         document.addEventListener('DOMContentLoaded', initWallet);
     </script>
