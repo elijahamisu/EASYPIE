@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Dashboard | EASYPIE - Premium Naira Investments</title>
+    <meta name="description" content="Manage your portfolio, track daily earnings, and grow your wealth on EASYPIE.">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="public/favicon.ico" type="image/x-icon">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Global Styles -->
+    <link rel="stylesheet" href="assets/css/main.css">
+    
+    <style>
+        /* Dashboard Specific Overrides and Enhancements */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: var(--space-6);
+        }
+
+        .stats-overview {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--space-4);
+        }
+
+        @media (min-width: 1024px) {
+            .dashboard-grid {
+                grid-template-columns: 2fr 1fr;
+            }
+            .stats-overview {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        .quick-action-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: var(--space-4);
+            background: var(--white);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--gray-200);
+            text-decoration: none;
+            color: var(--gray-700);
+            transition: var(--transition-base);
+            gap: var(--space-2);
+        }
+
+        .quick-action-btn:hover {
+            border-color: var(--primary);
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .quick-action-btn i {
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+
+        /* KYC Status Indicator */
+        .kyc-status-bar {
+            padding: var(--space-3) var(--space-4);
+            border-radius: var(--radius-md);
+            margin-bottom: var(--space-6);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.8125rem;
+        }
+
+        /* Telegram Modal Specifics */
+        .tg-modal-content {
+            text-align: center;
+        }
+        .tg-icon-circle {
+            width: 80px;
+            height: 80px;
+            background: #0088cc1a;
+            color: #0088cc;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            margin: 0 auto var(--space-4);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar Navigation (Desktop) -->
+    <aside class="sidebar">
+        <div class="m-b-12">
+            <a href="dashboard.html" class="flex items-center gap-2" style="text-decoration: none;">
+                <i class="fas fa-pie-chart text-white" style="font-size: 1.5rem;"></i>
+                <span style="font-size: 1.25rem; font-weight: 800; color: var(--white);">EASYPIE</span>
+            </a>
+        </div>
+        
+        <nav class="flex flex-col gap-2">
+            <a href="dashboard.html" class="btn btn-ghost justify-start active" style="color: var(--white); background: rgba(255,255,255,0.1);">
+                <i class="fas fa-grid-2"></i> Dashboard
+            </a>
+            <a href="plans.html" class="btn btn-ghost justify-start" style="color: var(--gray-300);">
+                <i class="fas fa-rocket"></i> Investment Plans
+            </a>
+            <a href="investment.html" class="btn btn-ghost justify-start" style="color: var(--gray-300);">
+                <i class="fas fa-chart-line"></i> My Portfolio
+            </a>
+            <a href="wallet.html" class="btn btn-ghost justify-start" style="color: var(--gray-300);">
+                <i class="fas fa-wallet"></i> My Wallet
+            </a>
+            <a href="referral.html" class="btn btn-ghost justify-start" style="color: var(--gray-300);">
+                <i class="fas fa-users"></i> Referrals
+            </a>
+            <a href="notifications.html" class="btn btn-ghost justify-start" style="color: var(--gray-300);">
+                <i class="fas fa-bell"></i> Notifications
+            </a>
+            <hr style="border: none; border-top: 1px solid rgba(255,255,255,0.05); margin: var(--space-4) 0;">
+            <a href="profile.html" class="btn btn-ghost justify-start" style="color: var(--gray-300);">
+                <i class="fas fa-user-circle"></i> Profile Settings
+            </a>
+            <a href="kyc.html" class="btn btn-ghost justify-start" style="color: var(--gray-300);">
+                <i class="fas fa-id-card"></i> KYC Verification
+            </a>
+            <a href="support.html" class="btn btn-ghost justify-start" style="color: var(--gray-300);">
+                <i class="fas fa-headset"></i> Support Center
+            </a>
+            <button id="sidebar-logout" class="btn btn-ghost justify-start text-danger" style="margin-top: auto;">
+                <i class="fas fa-sign-out-alt"></i> Sign Out
+            </button>
+        </nav>
+    </aside>
+
+    <!-- Top Navigation (Mobile/Tablet) -->
+    <header class="container" style="height: var(--header-height); display: flex; align-items: center; justify-content: space-between; background: var(--white); border-bottom: 1px solid var(--gray-200); position: sticky; top: 0; z-index: 999;">
+        <div class="flex items-center gap-3">
+            <div class="md-hidden" style="width: 40px; height: 40px; background: var(--primary-light); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                <i class="fas fa-user text-primary"></i>
+            </div>
+            <div>
+                <p class="text-xs text-muted m-0">Welcome back,</p>
+                <h4 id="user-display-name" class="m-0 text-sm">Investor</h4>
+            </div>
+        </div>
+        <div class="flex items-center gap-4">
+            <a href="notifications.html" style="position: relative; color: var(--gray-600);">
+                <i class="fas fa-bell" style="font-size: 1.25rem;"></i>
+                <span id="notif-badge" class="badge badge-danger" style="position: absolute; top: -5px; right: -5px; padding: 2px 5px; font-size: 0.5rem; display: none;">0</span>
+            </a>
+            <div class="md-hidden">
+                <i class="fas fa-bars" style="font-size: 1.25rem;"></i>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Body -->
+    <main class="main-content">
+        <div class="container">
+            
+            <!-- KYC Status Alert (Dynamic) -->
+            <div id="kyc-alert" class="kyc-status-bar alert-error hidden">
+                <div class="flex items-center gap-2">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span>Your account is unverified. Complete KYC to enable withdrawals.</span>
+                </div>
+                <a href="kyc.html" class="font-bold underline" style="color: inherit;">Verify Now</a>
+            </div>
+
+            <!-- Dashboard Hero: Wallet & Stats -->
+            <div class="m-b-8">
+                <div class="wallet-card">
+                    <div>
+                        <p class="text-sm m-b-1" style="opacity: 0.85;">Total Wallet Balance</p>
+                        <h1 class="wallet-balance m-0">₦<span id="balance-amount">0.00</span></h1>
+                    </div>
+                    <div class="flex gap-4 m-t-8">
+                        <a href="deposit.html" class="btn btn-secondary btn-sm flex-1">
+                            <i class="fas fa-plus-circle"></i> Deposit
+                        </a>
+                        <a href="withdraw.html" class="btn btn-outline btn-sm flex-1" style="background: rgba(255,255,255,0.15); border-color: transparent; color: white;">
+                            <i class="fas fa-arrow-up"></i> Withdraw
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Overview Grid -->
+            <div class="stats-overview m-b-8">
+                <div class="card p-4">
+                    <p class="text-xs text-muted uppercase font-bold m-b-1">Active Investments</p>
+                    <h3 id="stat-active-inv" class="m-0">₦0.00</h3>
+                </div>
+                <div class="card p-4">
+                    <p class="text-xs text-muted uppercase font-bold m-b-1">Daily Earnings</p>
+                    <h3 id="stat-daily-earn" class="m-0 text-primary">₦0.00</h3>
+                </div>
+                <div class="card p-4">
+                    <p class="text-xs text-muted uppercase font-bold m-b-1">Total Profit</p>
+                    <h3 id="stat-total-profit" class="m-0">₦0.00</h3>
+                </div>
+                <div class="card p-4">
+                    <p class="text-xs text-muted uppercase font-bold m-b-1">Total Deposits</p>
+                    <h3 id="stat-total-dep" class="m-0">₦0.00</h3>
+                </div>
+                <div class="card p-4">
+                    <p class="text-xs text-muted uppercase font-bold m-b-1">Total Withdrawals</p>
+                    <h3 id="stat-total-with" class="m-0">₦0.00</h3>
+                </div>
+                <div class="card p-4">
+                    <p class="text-xs text-muted uppercase font-bold m-b-1">Referral Earnings</p>
+                    <h3 id="stat-ref-earn" class="m-0">₦0.00</h3>
+                </div>
+            </div>
+
+            <!-- Layout Grid: Transactions & Actions -->
+            <div class="dashboard-grid">
+                
+                <!-- Left Column: Transactions -->
+                <div>
+                    <div class="flex justify-between items-center m-b-4">
+                        <h3 class="m-0">Recent Transactions</h3>
+                        <a href="transactions.html" class="text-sm font-bold text-primary">View All</a>
+                    </div>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Type</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody id="transaction-rows">
+                                <!-- Loading State -->
+                                <tr>
+                                    <td colspan="4" class="text-center py-8">
+                                        <div class="skeleton" style="height: 20px; width: 100%;"></div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Right Column: Quick Actions & Plans -->
+                <div class="flex flex-col gap-6">
+                    <div>
+                        <h3 class="m-b-4">Quick Actions</h3>
+                        <div class="grid grid-cols-2 gap-4">
+                            <a href="plans.html" class="quick-action-btn">
+                                <i class="fas fa-bolt"></i>
+                                <span class="text-xs font-bold">Invest Now</span>
+                            </a>
+                            <a href="referral.html" class="quick-action-btn">
+                                <i class="fas fa-gift"></i>
+                                <span class="text-xs font-bold">Invite Friend</span>
+                            </a>
+                            <a href="giftcode.html" class="quick-action-btn">
+                                <i class="fas fa-ticket"></i>
+                                <span class="text-xs font-bold">Redeem Code</span>
+                            </a>
+                            <a href="support.html" class="quick-action-btn">
+                                <i class="fas fa-headset"></i>
+                                <span class="text-xs font-bold">Get Help</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h4 class="m-b-4">Account Security</h4>
+                        <div class="flex items-center justify-between m-b-4">
+                            <span class="text-sm">2FA Authentication</span>
+                            <span class="badge badge-warning">Disabled</span>
+                        </div>
+                        <a href="security.html" class="btn btn-outline btn-sm btn-full">Configure Security</a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- Mobile Bottom Navigation -->
+    <nav class="mobile-nav">
+        <a href="dashboard.html" class="nav-item active">
+            <i class="fas fa-grid-2"></i>
+            <span>Home</span>
+        </a>
+        <a href="investment.html" class="nav-item">
+            <i class="fas fa-chart-line"></i>
+            <span>Portfolio</span>
+        </a>
+        <a href="plans.html" class="nav-item">
+            <i class="fas fa-rocket"></i>
+            <span>Invest</span>
+        </a>
+        <a href="wallet.html" class="nav-item">
+            <i class="fas fa-wallet"></i>
+            <span>Wallet</span>
+        </a>
+        <a href="profile.html" class="nav-item">
+            <i class="fas fa-user-circle"></i>
+            <span>Profile</span>
+        </a>
+    </nav>
+
+    <!-- Telegram Community Modal -->
+    <div id="tg-modal" class="modal-backdrop">
+        <div class="modal-content">
+            <div class="tg-modal-content">
+                <button id="tg-close-x" class="btn btn-ghost" style="position: absolute; right: 10px; top: 10px; padding: 5px;">
+                    <i class="fas fa-times"></i>
+                </button>
+                <div class="tg-icon-circle">
+                    <i class="fab fa-telegram-plane"></i>
+                </div>
+                <h2 class="m-b-2">Join the EASYPIE Community</h2>
+                <p class="text-sm text-muted m-b-6">
+                    Get real-time investment updates, support, promotions, and connect with thousands of other investors in our official Telegram community.
+                </p>
+                <div class="flex flex-col gap-3">
+                    <a href="https://t.me/+soUYHDmaOZBmM2U0" target="_blank" id="tg-join-btn" class="btn btn-primary btn-full">
+                        <i class="fab fa-telegram-plane"></i> Join Telegram Now
+                    </a>
+                    <button id="tg-later-btn" class="btn btn-outline btn-full">Maybe Later</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script type="module" src="assets/js/main.js"></script>
+    <script type="module">
+        /**
+         * EASYPIE Dashboard Logic
+         * Handles session check, data retrieval, and welcome bonus.
+         */
+        import { supabase } from './assets/js/main.js';
+
+        async function initDashboard() {
+            // 1. Session Protection
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const userId = session.user.id;
+
+            // 2. Load User Profile & KYC
+            const { data: profile } = await supabase.from('profiles').select('*').eq('id', userId).single();
+            if (profile) {
+                document.getElementById('user-display-name').textContent = profile.full_name || 'Investor';
+                if (!profile.kyc_verified) {
+                    document.getElementById('kyc-alert').classList.remove('hidden');
+                }
+            }
+
+            // 3. Handle Welcome Bonus (₦500)
+            // Note: This logic checks if a 'welcome_bonus_claimed' flag exists in user profile.
+            // In production, this is safer in a Supabase Function/Trigger.
+            if (profile && !profile.welcome_bonus_claimed) {
+                await claimWelcomeBonus(userId);
+            }
+
+            // 4. Fetch Wallet & Stats
+            loadWalletData(userId);
+            loadTransactionHistory(userId);
+
+            // 5. Telegram Modal Logic
+            handleTelegramPopup();
+        }
+
+        async function claimWelcomeBonus(userId) {
+            try {
+                // Call RPC to credit bonus (Prevents race conditions / duplicate claims)
+                const { error } = await supabase.rpc('claim_welcome_bonus', { user_id: userId });
+                if (!error) {
+                    console.log("Welcome bonus of ₦500 credited!");
+                }
+            } catch (err) {
+                console.error("Bonus Error:", err);
+            }
+        }
+
+        async function loadWalletData(userId) {
+            const { data: wallet } = await supabase.from('wallets').select('*').eq('user_id', userId).single();
+            if (wallet) {
+                document.getElementById('balance-amount').textContent = wallet.balance.toLocaleString('en-NG', { minimumFractionDigits: 2 });
+                document.getElementById('stat-total-profit').textContent = '₦' + wallet.total_profit.toLocaleString();
+                document.getElementById('stat-total-dep').textContent = '₦' + wallet.total_deposits.toLocaleString();
+                document.getElementById('stat-total-with').textContent = '₦' + wallet.total_withdrawals.toLocaleString();
+                document.getElementById('stat-ref-earn').textContent = '₦' + wallet.referral_earnings.toLocaleString();
+            }
+        }
+
+        async function loadTransactionHistory(userId) {
+            const { data: transactions } = await supabase
+                .from('transactions')
+                .select('*')
+                .eq('user_id', userId)
+                .order('created_at', { ascending: false })
+                .limit(5);
+
+            const tbody = document.getElementById('transaction-rows');
+            tbody.innerHTML = '';
+
+            if (transactions && transactions.length > 0) {
+                transactions.forEach(tx => {
+                    const statusClass = tx.status === 'completed' ? 'badge-success' : (tx.status === 'pending' ? 'badge-warning' : 'badge-danger');
+                    const row = `
+                        <tr>
+                            <td><span class="font-semibold">${tx.type.charAt(0).toUpperCase() + tx.type.slice(1)}</span></td>
+                            <td class="${tx.amount > 0 ? 'text-primary' : 'text-danger'}">₦${Math.abs(tx.amount).toLocaleString()}</td>
+                            <td><span class="badge ${statusClass}">${tx.status}</span></td>
+                            <td class="text-xs text-muted">${new Date(tx.created_at).toLocaleDateString()}</td>
+                        </tr>
+                    `;
+                    tbody.innerHTML += row;
+                });
+            } else {
+                tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">No transactions found.</td></tr>';
+            }
+        }
+
+        function handleTelegramPopup() {
+            const modal = document.getElementById('tg-modal');
+            const hasSeen = sessionStorage.getItem('easypie_tg_popup');
+
+            if (!hasSeen) {
+                setTimeout(() => {
+                    modal.style.display = 'flex';
+                }, 2000); // 2 second delay for premium feel
+            }
+
+            const closePopup = () => {
+                modal.style.display = 'none';
+                sessionStorage.setItem('easypie_tg_popup', 'true');
+            };
+
+            document.getElementById('tg-close-x').onclick = closePopup;
+            document.getElementById('tg-later-btn').onclick = closePopup;
+            document.getElementById('tg-join-btn').onclick = closePopup;
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', initDashboard);
+
+        // Sign Out Logic
+        document.getElementById('sidebar-logout').addEventListener('click', async () => {
+            const { error } = await supabase.auth.signOut();
+            if (!error) window.location.href = 'login.html';
+        });
+    </script>
+</body>
+</html>
