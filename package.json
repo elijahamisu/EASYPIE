@@ -1,45 +1,38 @@
 {
   "name": "easypie",
   "version": "1.0.0",
-  "description": "A premium Nigerian Naira investment platform designed for high performance and security.",
+  "description": "Premium Nigerian Naira Investment Platform focusing on security, transparency, and automated daily earnings.",
   "private": true,
   "type": "module",
   "engines": {
-    "node": ">=20.0.0"
+    "node": "20.x"
   },
   "scripts": {
     "dev": "vercel dev",
-    "start": "vercel dev",
-    "build": "echo 'No custom build step required. Static files serving from root.'",
-    "lint": "eslint \"**/*.js\"",
-    "format": "prettier --write \"**/*.{html,css,js,json,md}\"",
-    "deploy:preview": "vercel",
-    "deploy:prod": "vercel --prod"
+    "start": "serve",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
     "fintech",
-    "nigeria",
     "investment",
-    "easypie",
     "naira",
+    "kuda",
     "supabase",
-    "vanilla-js"
+    "vanilla-js",
+    "nigeria"
   ],
-  "author": "EASYPIE Engineering",
+  "author": "EASYPIE Team",
   "license": "MIT",
   "dependencies": {
-    "@supabase/supabase-js": "^2.39.7"
+    "@supabase/supabase-js": "^2.39.7",
+    "dotenv": "^16.4.5"
   },
   "devDependencies": {
     "eslint": "^8.57.0",
     "prettier": "^3.2.5",
+    "serve": "^14.2.1",
     "vercel": "^33.5.3"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/your-username/easypie.git"
-  },
-  "bugs": {
-    "url": "https://github.com/your-username/easypie/issues"
   }
 }
