@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Investment Plans | EASYPIE - Premium Naira Investments</title>
+    <meta name="description" content="Explore and choose from our range of high-yield Nigerian Naira investment plans.">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="public/favicon.ico" type="image/x-icon">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Global Styles -->
+    <link rel="stylesheet" href="assets/css/main.css">
+
+    <style>
+        /* Specific Styles for Plans Page */
+        .plans-header {
+            background: var(--white);
+            padding: var(--space-6) 0;
+            border-bottom: 1px solid var(--gray-200);
+            margin-bottom: var(--space-8);
+        }
+
+        .filter-section {
+            background: var(--white);
+            padding: var(--space-4);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--gray-200);
+            margin-bottom: var(--space-8);
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-4);
+            align-items: center;
+        }
+
+        .filter-item {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .plans-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: var(--space-6);
+            margin-bottom: var(--space-12);
+        }
+
+        .plan-card {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .plan-roi {
+            font-size: 2.25rem;
+            font-weight: 800;
+            color: var(--primary);
+            line-height: 1;
+        }
+
+        .plan-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-4);
+            padding: var(--space-4) 0;
+            border-top: 1px solid var(--gray-100);
+            border-bottom: 1px solid var(--gray-100);
+            margin: var(--space-4) 0;
+        }
+
+        .stat-box {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            font-weight: 700;
+            color: var(--gray-500);
+            letter-spacing: 0.025em;
+        }
+
+        .stat-value {
+            font-size: 0.9375rem;
+            font-weight: 600;
+            color: var(--gray-900);
+        }
+
+        .investors-count {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            font-size: 0.75rem;
+            color: var(--gray-500);
+            margin-top: auto;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            font-size: 0.8125rem;
+            color: var(--gray-500);
+            margin-bottom: var(--space-2);
+        }
+
+        .breadcrumb a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <div class="m-b-12">
+            <a href="dashboard.html" class="flex items-center gap-2" style="text-decoration: none;">
+                <i class="fas fa-pie-chart text-white" style="font-size: 1.5rem;"></i>
+                <span style="font-size: 1.25rem; font-weight: 800; color: var(--white);">EASYPIE</span>
+            </a>
+        </div>
+        
+        <nav class="flex flex-col gap-2">
+            <a href="dashboard.html" class="btn btn-ghost justify-start" style="color: var(--gray-300);">
+                <i class="fas fa-grid-2"></i> Dashboard
+            </a>
+            <a href="plans.html" class="btn btn-ghost justify-start active" style="color: var(--white); background: rgba(255,255,255,0.1);">
+                <i class="fas fa-rocket"></i> Investment Plans
+            </a>
+            <a href="investment.html" class="btn btn-ghost justify-start" style="color: var(--gray-300);">
+                <i class="fas fa-chart-line"></i> My Portfolio
+            </a>
+            <a href="wallet.html" class="btn btn-ghost justify-start" style="color: var(--gray-300);">
+                <i class="fas fa-wallet"></i> My Wallet
+            </a>
+            <a href="referral.html" class="btn btn-ghost justify-start" style="color: var(--gray-300);">
+                <i class="fas fa-users"></i> Referrals
+            </a>
+            <hr style="border: none; border-top: 1px solid rgba(255,255,255,0.05); margin: var(--space-4) 0;">
+            <a href="profile.html" class="btn btn-ghost justify-start" style="color: var(--gray-300);">
+                <i class="fas fa-user-circle"></i> Profile
+            </a>
+            <a href="support.html" class="btn btn-ghost justify-start" style="color: var(--gray-300);">
+                <i class="fas fa-headset"></i> Support
+            </a>
+            <button id="logout-btn" class="btn btn-ghost justify-start text-danger" style="margin-top: auto;">
+                <i class="fas fa-sign-out-alt"></i> Sign Out
+            </button>
+        </nav>
+    </aside>
+
+    <!-- Header Section -->
+    <header class="container" style="height: var(--header-height); display: flex; align-items: center; justify-content: space-between; background: var(--white); border-bottom: 1px solid var(--gray-200); position: sticky; top: 0; z-index: 999;">
+        <div class="breadcrumb">
+            <a href="dashboard.html">Dashboard</a>
+            <i class="fas fa-chevron-right" style="font-size: 0.6rem;"></i>
+            <span>Investment Plans</span>
+        </div>
+
+        <div class="flex items-center gap-6">
+            <div class="text-right hidden md-block">
+                <p class="text-xs text-muted m-0">Wallet Balance</p>
+                <h4 class="m-0 text-primary">₦<span id="header-balance">0.00</span></h4>
+            </div>
+            <a href="notifications.html" style="position: relative; color: var(--gray-600);">
+                <i class="fas fa-bell" style="font-size: 1.25rem;"></i>
+                <span class="badge badge-danger" style="position: absolute; top: -5px; right: -5px; padding: 2px 5px; font-size: 0.5rem;">0</span>
+            </a>
+            <div class="flex items-center gap-2">
+                <div style="width: 36px; height: 36px; background: var(--gray-100); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-user text-gray-500"></i>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Body -->
+    <main class="main-content">
+        <div class="container">
+            
+            <div class="m-b-8">
+                <h1>Investment Packages</h1>
+                <p class="text-muted">Choose a plan that fits your financial goals. All returns are calculated daily.</p>
+            </div>
+
+            <!-- Filters -->
+            <div class="filter-section">
+                <div class="filter-item">
+                    <label class="label">Search Plans</label>
+                    <input type="text" id="search-plans" class="input" placeholder="Search by name...">
+                </div>
+                <div class="filter-item">
+                    <label class="label">Sort By</label>
+                    <select id="sort-plans" class="select">
+                        <option value="popularity">Most Popular</option>
+                        <option value="roi-high">Highest ROI</option>
+                        <option value="roi-low">Lowest ROI</option>
+                        <option value="amount-low">Min Amount (Low to High)</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label class="label">Min. Investment</label>
+                    <select id="filter-amount" class="select">
+                        <option value="all">All Amounts</option>
+                        <option value="5000">₦5,000+</option>
+                        <option value="50000">₦50,000+</option>
+                        <option value="500000">₦500,000+</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Plans Grid -->
+            <div id="plans-container" class="plans-grid">
+                <!-- Dynamic Content Loaded via JS -->
+                <div class="flex justify-center w-full" style="grid-column: 1/-1; padding: 4rem 0;">
+                    <div class="spinner" style="border-top-color: var(--primary);"></div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Mobile Bottom Navigation -->
+    <nav class="mobile-nav">
+        <a href="dashboard.html" class="nav-item">
+            <i class="fas fa-grid-2"></i>
+            <span>Home</span>
+        </a>
+        <a href="investment.html" class="nav-item">
+            <i class="fas fa-chart-line"></i>
+            <span>Portfolio</span>
+        </a>
+        <a href="plans.html" class="nav-item active">
+            <i class="fas fa-rocket"></i>
+            <span>Invest</span>
+        </a>
+        <a href="wallet.html" class="nav-item">
+            <i class="fas fa-wallet"></i>
+            <span>Wallet</span>
+        </a>
+        <a href="profile.html" class="nav-item">
+            <i class="fas fa-user-circle"></i>
+            <span>Profile</span>
+        </a>
+    </nav>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script type="module">
+        import { supabase } from './assets/js/main.js';
+
+        async function fetchPlans() {
+            const container = document.getElementById('plans-container');
+            
+            try {
+                // Fetch active plans from Supabase
+                const { data: plans, error } = await supabase
+                    .from('plans')
+                    .select('*')
+                    .eq('is_active', true)
+                    .order('min_amount', { ascending: true });
+
+                if (error) throw error;
+
+                renderPlans(plans);
+                
+                // Set up filter events
+                document.getElementById('search-plans').addEventListener('input', () => filterPlans(plans));
+                document.getElementById('sort-plans').addEventListener('change', () => filterPlans(plans));
+                document.getElementById('filter-amount').addEventListener('change', () => filterPlans(plans));
+
+            } catch (err) {
+                container.innerHTML = `<div class="alert alert-error w-full">Error loading plans: ${err.message}</div>`;
+            }
+        }
+
+        function renderPlans(plans) {
+            const container = document.getElementById('plans-container');
+            container.innerHTML = '';
+
+            if (plans.length === 0) {
+                container.innerHTML = '<p class="text-center w-full">No active investment plans found.</p>';
+                return;
+            }
+
+            plans.forEach(plan => {
+                const totalROI = (plan.daily_roi * plan.duration).toFixed(1);
+                const totalReturn = (1 + (totalROI / 100)).toFixed(2);
+                
+                const card = `
+                    <div class="card plan-card card-interactive shadow-sm">
+                        <div class="flex justify-between items-start m-b-4">
+                            <div>
+                                <span class="badge badge-success m-b-2">${plan.category}</span>
+                                <h3 class="m-0">${plan.name}</h3>
+                            </div>
+                            <span class="badge ${plan.risk_level === 'Low' ? 'badge-success' : 'badge-warning'}">${plan.risk_level} Risk</span>
+                        </div>
+
+                        <div class="m-b-4">
+                            <div class="plan-roi">${plan.daily_roi}%</div>
+                            <p class="text-xs font-bold text-muted uppercase">Daily Return</p>
+                        </div>
+
+                        <p class="text-sm m-b-4" style="height: 48px; overflow: hidden;">${plan.description}</p>
+
+                        <div class="plan-stats">
+                            <div class="stat-box">
+                                <span class="stat-label">Min Invest</span>
+                                <span class="stat-value">₦${plan.min_amount.toLocaleString()}</span>
+                            </div>
+                            <div class="stat-box">
+                                <span class="stat-label">Max Invest</span>
+                                <span class="stat-value">${plan.max_amount ? '₦' + plan.max_amount.toLocaleString() : 'No Limit'}</span>
+                            </div>
+                            <div class="stat-box">
+                                <span class="stat-label">Duration</span>
+                                <span class="stat-value">${plan.duration} Days</span>
+                            </div>
+                            <div class="stat-box">
+                                <span class="stat-label">Total ROI</span>
+                                <span class="stat-value text-primary">${totalROI}%</span>
+                            </div>
+                        </div>
+
+                        <div class="m-b-6">
+                            <div class="flex justify-between text-xs m-b-1">
+                                <span class="font-bold">Popularity</span>
+                                <span>${plan.active_investors_count || 0} Investors</span>
+                            </div>
+                            <div class="skeleton" style="height: 6px; background: var(--gray-100); border-radius: 3px; overflow: hidden; animation: none;">
+                                <div style="height: 100%; width: ${Math.min((plan.active_investors_count || 0) / 10, 100)}%; background: var(--primary);"></div>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col gap-3">
+                            <a href="investment.html?plan_id=${plan.id}" class="btn btn-primary btn-full">Invest Now</a>
+                            <a href="investment-details.html?plan_id=${plan.id}" class="btn btn-outline btn-full btn-sm">View Full Details</a>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += card;
+            });
+        }
+
+        function filterPlans(allPlans) {
+            const searchTerm = document.getElementById('search-plans').value.toLowerCase();
+            const sortBy = document.getElementById('sort-plans').value;
+            const minAmount = document.getElementById('filter-amount').value;
+
+            let filtered = allPlans.filter(plan => {
+                const matchesSearch = plan.name.toLowerCase().includes(searchTerm) || plan.category.toLowerCase().includes(searchTerm);
+                const matchesAmount = minAmount === 'all' || plan.min_amount >= parseInt(minAmount);
+                return matchesSearch && matchesAmount;
+            });
+
+            // Sorting
+            if (sortBy === 'roi-high') {
+                filtered.sort((a, b) => b.daily_roi - a.daily_roi);
+            } else if (sortBy === 'roi-low') {
+                filtered.sort((a, b) => a.daily_roi - b.daily_roi);
+            } else if (sortBy === 'amount-low') {
+                filtered.sort((a, b) => a.min_amount - b.min_amount);
+            } else if (sortBy === 'popularity') {
+                filtered.sort((a, b) => (b.active_investors_count || 0) - (a.active_investors_count || 0));
+            }
+
+            renderPlans(filtered);
+        }
+
+        async function initHeader() {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) return;
+
+            const { data: wallet } = await supabase
+                .from('wallets')
+                .select('balance')
+                .eq('user_id', session.user.id)
+                .single();
+
+            if (wallet) {
+                const balance = wallet.balance.toLocaleString('en-NG', { minimumFractionDigits: 2 });
+                document.getElementById('header-balance').textContent = balance;
+            }
+        }
+
+        document.getElementById('logout-btn')?.addEventListener('click', async () => {
+            await supabase.auth.signOut();
+            window.location.href = 'login.html';
+        });
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchPlans();
+            initHeader();
+        });
+    </script>
+</body>
+</html>
