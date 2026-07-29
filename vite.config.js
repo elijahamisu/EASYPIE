@@ -26,7 +26,7 @@ export default defineConfig({
 
         // Admin Pages
         admin_dashboard: resolve(__dirname, 'admin/index.html'),
-       // admin_login: resolve(__dirname, 'admin/login.html'),
+        admin_login: resolve(__dirname, 'admin/login.html'),
       //  admin_users: resolve(__dirname, 'admin/users.html'),
       //  admin_investments: resolve(__dirname, 'admin/investments.html'),
        // admin_deposits: resolve(__dirname, 'admin/deposits.html'),
