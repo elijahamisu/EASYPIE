@@ -39,6 +39,7 @@ export default defineConfig({
         admin_support: resolve(__dirname, 'admin/support.html'),
         admin_settings: resolve(__dirname, 'admin/settings.html'),
         admin_reports: resolve(__dirname, 'admin/reports.html'),
+        admin_activity_log: resolve(__dirname, 'admin/activity-log.html'),
         admin_profile: resolve(__dirname, 'admin/profile.html'),
       },
     },
