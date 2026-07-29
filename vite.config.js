@@ -34,7 +34,7 @@ export default defineConfig({
         admin_earnings: resolve(__dirname, 'admin/earnings.html'),
         admin_referrals: resolve(__dirname, 'admin/referrals.html'),
         admin_giftcodes: resolve(__dirname, 'admin/giftcodes.html'),
-        // admin_transactions: resolve(__dirname, 'admin/transactions.html'),
+         admin_transactions: resolve(__dirname, 'admin/transactions.html'),
        // admin_notifications: resolve(__dirname, 'admin/notifications.html'),
        // admin_settings: resolve(__dirname, 'admin/settings.html'),
        // admin_reports: resolve(__dirname, 'admin/reports.html'),
