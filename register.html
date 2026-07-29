@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Join EASYPIE - Register now to start investing and claim your ₦500 welcome bonus.">
+    <title>Register | EASYPIE - Premium Naira Investment</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- CSS Stylesheets -->
+    <link rel="stylesheet" href="assets/css/variables.css">
+    <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="stylesheet" href="assets/css/auth.css">
+</head>
+<body class="auth-page">
+
+    <!-- Simple Navigation -->
+    <header class="navbar">
+        <div class="container">
+            <a href="index.html" class="logo">
+                <span class="logo-text">EASY<span class="accent">PIE</span></span>
+            </a>
+            <nav class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="login.html" class="btn-outline-sm">Login</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <h1>Create Your EASYPIE Account</h1>
+                <p>Register today and start earning from your investments.</p>
+                <div class="bonus-badge">🎁 ₦500 Welcome Bonus included</div>
+            </div>
+
+            <!-- Registration Form -->
+            <form id="registerForm" class="auth-form">
+                <div class="form-group">
+                    <label for="fullName">Full Name</label>
+                    <input type="text" id="fullName" name="fullName" placeholder="Enter your full name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" placeholder="Choose a username" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" placeholder="name@example.com" required autocomplete="email">
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">Phone Number</label>
+                    <input type="tel" id="phone" name="phone" placeholder="08012345678" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Create a strong password" required minlength="6" autocomplete="new-password">
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmPassword">Confirm Password</label>
+                    <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Repeat your password" required autocomplete="new-password">
+                </div>
+
+                <div class="form-group">
+                    <label for="referralCode">Referral Code (Optional)</label>
+                    <input type="text" id="referralCode" name="referralCode" placeholder="Enter referral code if any">
+                </div>
+
+                <div class="form-checkbox">
+                    <input type="checkbox" id="terms" name="terms" required>
+                    <label for="terms">I agree to the <a href="terms.html" target="_blank">Terms & Conditions</a></label>
+                </div>
+
+                <div class="form-error" id="errorMessage" hidden>
+                    <!-- Error messages will appear here -->
+                </div>
+
+                <button type="submit" class="btn-primary btn-full" id="registerBtn">
+                    <span class="btn-text">Create Account</span>
+                    <span class="loader" hidden></span>
+                </button>
+            </form>
+
+            <div class="auth-footer-links">
+                <p>Already have an account? <a href="login.html" class="accent-link">Login here</a></p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Telegram Popup (Hidden by default) -->
+    <!-- This popup will be triggered by JS after successful account creation -->
+    <div id="telegramPopup" class="modal-overlay" hidden aria-modal="true" role="dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="modal-emoji">🎉</span>
+                <h2>Welcome to EASYPIE!</h2>
+            </div>
+            <div class="modal-body">
+                <p>Join our Telegram community to receive investment updates, announcements, and support.</p>
+                <div class="bonus-notice">Your ₦500 Welcome Bonus has been credited to your wallet!</div>
+            </div>
+            <div class="modal-footer">
+                <a href="https://t.me/+soUYHDmaOZBmM2U0" target="_blank" rel="noopener" class="btn-primary btn-full" id="joinTelegramBtn">Join Telegram</a>
+                <button type="button" class="btn-text-only" id="closePopup">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Page Footer -->
+    <footer class="footer-minimal">
+        <div class="container">
+            <p>&copy; 2024 EASYPIE. All Rights Reserved.</p>
+            <nav class="footer-nav">
+                <a href="support.html">Support</a>
+                <a href="terms.html">Terms</a>
+                <a href="terms.html#privacy">Privacy Policy</a>
+            </nav>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <!-- JavaScript will handle Supabase auth, wallet creation, and the ₦500 bonus logic -->
+    <script src="assets/js/auth.js" type="module"></script>
+</body>
+</html>
