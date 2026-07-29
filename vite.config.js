@@ -25,7 +25,7 @@ export default defineConfig({
         giftcode: resolve(__dirname, 'giftcode.html'),
 
         // Admin Pages
-      //  admin_dashboard: resolve(__dirname, 'admin/index.html'),
+        admin_dashboard: resolve(__dirname, 'admin/index.html'),
        // admin_login: resolve(__dirname, 'admin/login.html'),
       //  admin_users: resolve(__dirname, 'admin/users.html'),
       //  admin_investments: resolve(__dirname, 'admin/investments.html'),
