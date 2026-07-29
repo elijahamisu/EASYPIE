@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Login to EASYPIE - Access your investment dashboard and track your daily earnings.">
+    <title>Login | EASYPIE - Premium Naira Investment</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- CSS Stylesheets -->
+    <link rel="stylesheet" href="assets/css/variables.css">
+    <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="stylesheet" href="assets/css/auth.css">
+</head>
+<body class="auth-page">
+
+    <!-- Simple Navigation -->
+    <header class="navbar">
+        <div class="container">
+            <a href="index.html" class="logo">
+                <span class="logo-text">EASY<span class="accent">PIE</span></span>
+            </a>
+            <nav class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="register.html" class="btn-outline-sm">Register</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <h1>Welcome Back</h1>
+                <p>Sign in to manage your investments and daily earnings.</p>
+            </div>
+
+            <!-- Login Form -->
+            <form id="loginForm" class="auth-form">
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" placeholder="name@example.com" required autocomplete="email">
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Enter your password" required autocomplete="current-password">
+                </div>
+
+                <div class="form-error" id="errorMessage" hidden>
+                    <!-- Error messages will appear here -->
+                </div>
+
+                <button type="submit" class="btn-primary btn-full" id="loginBtn">
+                    <span class="btn-text">Login</span>
+                    <span class="loader" hidden></span>
+                </button>
+            </form>
+
+            <div class="auth-footer-links">
+                <p>Don't have an account? <a href="register.html" class="accent-link">Register here</a></p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Telegram Popup (Hidden by default) -->
+    <div id="telegramPopup" class="modal-overlay" hidden aria-modal="true" role="dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="modal-emoji">🎉</span>
+                <h2>Welcome back!</h2>
+            </div>
+            <div class="modal-body">
+                <p>Join the EASYPIE Telegram Community for updates, investment tips, and announcements.</p>
+            </div>
+            <div class="modal-footer">
+                <a href="https://t.me/+soUYHDmaOZBmM2U0" target="_blank" rel="noopener" class="btn-primary btn-full" id="joinTelegramBtn">Join Telegram</a>
+                <button type="button" class="btn-text-only" id="closePopup">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Page Footer -->
+    <footer class="footer-minimal">
+        <div class="container">
+            <p>&copy; 2024 EASYPIE. All Rights Reserved.</p>
+            <nav class="footer-nav">
+                <a href="support.html">Support</a>
+                <a href="terms.html">Terms</a>
+                <a href="terms.html#privacy">Privacy</a>
+            </nav>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="assets/js/auth.js" type="module"></script>
+</body>
+</html>
