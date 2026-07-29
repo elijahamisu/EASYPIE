@@ -535,7 +535,7 @@
                     .eq('username', username)
                     .maybeSingle();
 
-                if (userCheckErr) throw new Error("Couldn't verify username right now. Please try again.");
+                if (userCheckErr) throw new Error("DEBUG - username check failed: " + getErrorMessage(userCheckErr));
                 if (existingUser) throw new Error("Username already taken. Please choose another.");
 
                 // 3. Signup Auth
