@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="EASYPIE User Dashboard - Manage your investments, track daily earnings, and grow your wealth.">
+    <title>Dashboard | EASYPIE - Premium Naira Investment</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- CSS Stylesheets -->
+    <link rel="stylesheet" href="assets/css/variables.css">
+    <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="stylesheet" href="assets/css/dashboard.css">
+</head>
+<body class="dashboard-body">
+
+    <!-- Mobile Navigation Toggle -->
+    <button class="menu-toggle" id="menuToggle" aria-label="Open Navigation">
+        <span class="bar"></span>
+        <span class="bar"></span>
+        <span class="bar"></span>
+    </button>
+
+    <div class="dashboard-layout">
+        
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="logo">
+                    <span class="logo-text">EASY<span class="accent">PIE</span></span>
+                </a>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="dashboard.html" class="active"><i class="icon-dash"></i> Dashboard</a></li>
+                    <li><a href="plans.html"><i class="icon-plans"></i> Investment Plans</a></li>
+                    <li><a href="investment.html"><i class="icon-invest"></i> My Investments</a></li>
+                    <li><a href="wallet.html"><i class="icon-wallet"></i> Wallet</a></li>
+                    <li><a href="deposit.html"><i class="icon-deposit"></i> Deposit</a></li>
+                    <li><a href="withdraw.html"><i class="icon-withdraw"></i> Withdraw</a></li>
+                    <li><a href="earnings.html"><i class="icon-earnings"></i> Earnings</a></li>
+                    <li><a href="transactions.html"><i class="icon-trans"></i> Transactions</a></li>
+                    <li><a href="referrals.html"><i class="icon-ref"></i> Referrals</a></li>
+                    <li><a href="notifications.html"><i class="icon-bell"></i> Notifications</a></li>
+                    <li class="nav-divider"></li>
+                    <li><a href="profile.html"><i class="icon-user"></i> Profile</a></li>
+                    <li><a href="support.html"><i class="icon-support"></i> Support</a></li>
+                    <li><a href="#" id="logoutBtn" class="logout-link"><i class="icon-logout"></i> Logout</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            
+            <!-- Top Header -->
+            <header class="top-header">
+                <div class="header-left">
+                    <h2 class="welcome-msg">Welcome, <span id="userName">User</span></h2>
+                </div>
+                <div class="header-right">
+                    <div class="header-wallet">
+                        <span class="label">Balance:</span>
+                        <span class="balance-value" id="topWalletBalance">₦0.00</span>
+                    </div>
+                    <div class="header-icons">
+                        <a href="notifications.html" class="icon-btn" aria-label="Notifications">
+                            <span class="notification-dot" id="notifDot" hidden></span>
+                            🔔
+                        </a>
+                        <div class="user-avatar" id="userAvatar">
+                            <img src="assets/img/default-avatar.png" alt="Profile">
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="content-body">
+                
+                <!-- Daily Earning Alert Info -->
+                <div class="info-alert">
+                    <p>🕒 Daily earnings are credited automatically every day at <strong>12:00 AM (Africa/Lagos)</strong>.</p>
+                </div>
+
+                <!-- Dashboard Statistics Cards -->
+                <section class="stats-grid">
+                    <div class="stat-card gold">
+                        <div class="stat-info">
+                            <h3>Wallet Balance</h3>
+                            <p class="stat-value" id="cardWalletBalance">₦0.00</p>
+                        </div>
+                        <div class="stat-icon">💰</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-info">
+                            <h3>Active Investments</h3>
+                            <p class="stat-value" id="cardActiveInvestments">0</p>
+                        </div>
+                        <div class="stat-icon">📈</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-info">
+                            <h3>Daily Earnings</h3>
+                            <p class="stat-value" id="cardDailyEarnings">₦0.00</p>
+                        </div>
+                        <div class="stat-icon">⚡</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-info">
+                            <h3>Referral Bonus</h3>
+                            <p class="stat-value" id="cardReferralBonus">₦0.00</p>
+                        </div>
+                        <div class="stat-icon">🎁</div>
+                    </div>
+                    <div class="stat-card secondary">
+                        <div class="stat-info">
+                            <h3>Total Investment</h3>
+                            <p class="stat-value" id="cardTotalInvestment">₦0.00</p>
+                        </div>
+                    </div>
+                    <div class="stat-card secondary">
+                        <div class="stat-info">
+                            <h3>Total Earnings</h3>
+                            <p class="stat-value" id="cardTotalEarnings">₦0.00</p>
+                        </div>
+                    </div>
+                    <div class="stat-card secondary">
+                        <div class="stat-info">
+                            <h3>Total Deposits</h3>
+                            <p class="stat-value" id="cardTotalDeposits">₦0.00</p>
+                        </div>
+                    </div>
+                    <div class="stat-card secondary">
+                        <div class="stat-info">
+                            <h3>Total Withdrawals</h3>
+                            <p class="stat-value" id="cardTotalWithdrawals">₦0.00</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Quick Actions -->
+                <section class="quick-actions">
+                    <h3>Quick Actions</h3>
+                    <div class="actions-grid">
+                        <a href="deposit.html" class="action-btn">Deposit</a>
+                        <a href="plans.html" class="action-btn primary">Invest Now</a>
+                        <a href="withdraw.html" class="action-btn">Withdraw</a>
+                        <a href="referrals.html" class="action-btn">Refer Friends</a>
+                    </div>
+                </section>
+
+                <div class="tables-grid">
+                    
+                    <!-- Active Investments Table -->
+                    <section class="dashboard-section">
+                        <div class="section-header">
+                            <h3>Active Investments</h3>
+                            <a href="investment.html" class="view-all">View All</a>
+                        </div>
+                        <div class="table-container">
+                            <table class="data-table">
+                               <thead>
+                                   <tr>
+                                       <th>Plan Name</th>
+                                       <th>Amount</th>
+                                       <th>Daily Profit</th>
+                                       <th>Days Remaining</th>
+                                       <th>Status</th>
+                                   </tr>
+                               </thead>
+                               <tbody id="activeInvestmentsTable">
+                                   <!-- Data loaded from Supabase -->
+                                   <tr class="placeholder-row">
+                                       <td colspan="5">No active investments found. <a href="plans.html">Start investing now!</a></td>
+                                   </tr>
+                               </tbody>
+                            </table>
+                        </div>
+                    </section>
+
+                    <!-- Recent Transactions Table -->
+                    <section class="dashboard-section">
+                        <div class="section-header">
+                            <h3>Recent Transactions</h3>
+                            <a href="transactions.html" class="view-all">View All</a>
+                        </div>
+                        <div class="table-container">
+                            <table class="data-table">
+                               <thead>
+                                   <tr>
+                                       <th>Date</th>
+                                       <th>Type</th>
+                                       <th>Amount</th>
+                                       <th>Status</th>
+                                   </tr>
+                               </thead>
+                               <tbody id="recentTransactionsTable">
+                                   <!-- Data loaded from Supabase -->
+                                   <tr class="placeholder-row">
+                                       <td colspan="4">No recent transactions.</td>
+                                   </tr>
+                               </tbody>
+                            </table>
+                        </div>
+                    </section>
+
+                </div>
+
+                <!-- Referral Summary -->
+                <section class="referral-summary">
+                    <div class="ref-card">
+                        <div class="ref-content">
+                            <h3>Referral System</h3>
+                            <p>Share your link and earn rewards for every investment your friends make.</p>
+                            <div class="ref-link-box">
+                                <input type="text" id="referralLink" value="https://easypie.com/register?ref=user" readonly>
+                                <button id="copyRefBtn">Copy Link</button>
+                            </div>
+                        </div>
+                        <div class="ref-stats">
+                            <div class="ref-stat">
+                                <span class="label">Total Referrals</span>
+                                <span class="value" id="totalReferralCount">0</span>
+                            </div>
+                            <div class="ref-stat">
+                                <span class="label">Total Bonus</span>
+                                <span class="value" id="totalReferralEarning">₦0.00</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Latest Notifications -->
+                <section class="dashboard-section">
+                    <div class="section-header">
+                        <h3>Latest Notifications</h3>
+                        <a href="notifications.html" class="view-all">View All</a>
+                    </div>
+                    <div class="notification-list" id="notificationsPreview">
+                        <!-- Placeholders for dynamic notifications -->
+                        <div class="notification-item unread">
+                            <div class="notif-icon">🎁</div>
+                            <div class="notif-text">
+                                <p>Welcome to EASYPIE! Your ₦500 bonus has been credited.</p>
+                                <span class="notif-time">Just now</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="dashboard-footer">
+        <p>&copy; 2024 EASYPIE. All Rights Reserved.</p>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="assets/js/main.js" type="module"></script>
+    <script src="assets/js/dashboard.js" type="module"></script>
+</body>
+</html>
