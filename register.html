@@ -535,50 +535,34 @@
                     .eq('username', username)
                     .maybeSingle();
 
-                if (userCheckErr) throw new Error("DEBUG - username check failed: " + getErrorMessage(userCheckErr));
+                if (userCheckErr) throw new Error("Couldn't verify username right now. Please try again.");
                 if (existingUser) throw new Error("Username already taken. Please choose another.");
 
                 // 3. Signup Auth
                 const { data: authData, error: authErr } = await supabase.auth.signUp({
                     email,
                     password,
-                    options: { data: { full_name: fullName } }
+                    options: { data: { full_name: fullName, username: username, referral_by: referralCode || null } }
                 });
 
                 if (authErr) throw authErr;
                 const user = authData.user;
 
                 if (user) {
-                    // 4. Create Profile
-                    const { error: profileErr } = await supabase
+                    // Profile, wallet, and the welcome-bonus transaction are all created
+                    // automatically by the handle_new_user database trigger the moment
+                    // signUp() succeeds above — no need to insert them again here (doing
+                    // so would fail with a duplicate-key error since those rows already
+                    // exist by the time we get here).
+
+                    // The trigger doesn't set the phone number, so save it separately.
+                    // Not treated as fatal — the account already exists at this point.
+                    const { error: phoneErr } = await supabase
                         .from('profiles')
-                        .insert([{ 
-                            id: user.id, 
-                            full_name: fullName, 
-                            username: username, 
-                            phone: phone,
-                            referral_by: referralCode || null 
-                        }]);
-                    if (profileErr) throw profileErr;
+                        .update({ phone })
+                        .eq('id', user.id);
+                    if (phoneErr) console.error('Could not save phone number:', phoneErr);
 
-                    // 5. Create Wallet with Bonus
-                    const { error: walletErr } = await supabase
-                        .from('wallets')
-                        .insert([{ user_id: user.id, balance: BONUS_AMT }]);
-                    if (walletErr) throw walletErr;
-
-                    // 6. Record Transaction
-                    const { error: transErr } = await supabase
-                        .from('transactions')
-                        .insert([{ 
-                            user_id: user.id, 
-                            amount: BONUS_AMT, 
-                            type: 'bonus', 
-                            description: 'Welcome Bonus Reward' 
-                        }]);
-                    if (transErr) throw transErr;
-
-                    // 7. Success
                     welcomeModal.style.display = 'flex';
                 }
 
