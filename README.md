@@ -1,52 +1,76 @@
 # EASYPIE
 
-## Project Overview
-**EASYPIE** is a premium Nigerian Naira (NGN) investment platform engineered for security, simplicity, and high performance. Designed with a mobile-first philosophy, the platform provides a luxury dark-themed interface that allows users to grow their wealth through a streamlined investment process. 
+**EASYPIE** is a premium Nigerian Naira (NGN) investment platform designed for security, speed, and simplicity. Built with a mobile-first philosophy, the platform provides a luxury dark-themed interface for users to grow their wealth through automated daily earnings and a robust referral system.
 
-The application leverages **Supabase** for real-time database management and authentication, uses **Vite** for optimized frontend performance, and is built for seamless deployment on **Vercel**.
+The application uses **Vite** for a high-performance frontend, **Supabase** for real-time database management and authentication, and is optimized for seamless deployment on **Vercel**.
 
 ---
 
-## Features
+## 🚀 Features
 
 ### User Features
-*   **Secure Authentication:** Registration and Login systems (No KYC required for ease of use).
-*   **Welcome Bonus:** Every new user automatically receives a **₦500 bonus** upon successful registration.
-*   **Dynamic Dashboard:** Real-time tracking of wallet balance, active investments, and daily earnings.
-*   **Investment Plans:** Browse and subscribe to various investment packages.
-*   **Flexible Funding:** Users can invest directly from their wallet balance.
-*   **Kuda Bank Deposits:** Exclusive integration with Kuda Bank for simplified deposits.
-*   **Automated Earnings:** Daily profits are calculated and credited automatically every day at **12:00 AM (Africa/Lagos)**.
-*   **Referral System:** Built-in reward system for inviting new investors.
-*   **Transaction History:** Detailed logs for deposits, withdrawals, earnings, and referrals.
-*   **Notifications:** Real-time alerts for all account activities.
-*   **Community Integration:** Direct access to the official Telegram community.
+*   **Secure Authentication:** Quick registration and login (No KYC required).
+*   **Personal Dashboard:** Real-time tracking of wallet balance, active investments, and earnings.
+*   **Investment Plans:** Browse and subscribe to various Naira-based profit packages.
+*   **Daily Earnings:** Profits are calculated and credited automatically at **12:00 AM (Africa/Lagos)**.
+*   **Flexible Wallet:** Invest directly from your available balance or deposit via Kuda Bank.
+*   **Kuda Bank Integration:** Exclusive, simplified deposit system using Kuda Bank.
+*   **Referral Program:** Earn commissions by inviting friends using a unique referral link.
+*   **Gift Codes:** Redeem promotional codes for instant wallet bonuses.
+*   **Notifications:** Real-time alerts for every transaction, earning, and system update.
+*   **Transaction History:** Detailed logs for all financial activities.
 
-### Admin Features
-*   **Live Statistics:** Comprehensive overview of platform performance.
-*   **User Management:** Monitor and manage all registered investors.
-*   **Financial Oversight:** Approve/Manage deposits and withdrawals.
-*   **System Settings:** Configure platform parameters and investment plans.
+### Platform Features
+*   **Welcome Bonus:** ₦500 credited automatically to all new users.
+*   **Referral Rewards:** 20% commission on qualifying referral activities (Configurable).
+*   **Mobile-First Design:** Optimized for a premium experience on smartphones.
+*   **Supabase Realtime:** Instant UI updates without requiring page refreshes.
 
----
-
-## Project Structure
-The project follows a clean and modular architecture for easy maintenance and deployment:
-
-*   `/` (Root): Main application pages (HTML).
-*   `admin/`: Exclusive dashboard and management tools for administrators.
-*   `api/`: Client-side logic and Supabase integration scripts.
-*   `assets/`: Global styles (CSS), images, and client-side JavaScript.
-*   `config/`: Configuration files and environment constant loaders.
-*   `public/`: Static assets like icons and manifest files.
+### Administrator Features
+*   **Admin Console:** High-level overview of platform performance and statistics.
+*   **User Management:** Activate, suspend, or ban accounts and view user profiles.
+*   **Financial Approvals:** Review and process deposit and withdrawal requests.
+*   **Investment Control:** Monitor active cycles and pause/resume earnings.
+*   **Broadcast System:** Send notifications or announcements to the entire user base.
+*   **System Settings:** Manage bank details, reward percentages, and maintenance mode.
+*   **Audit Logs:** Permanent records of all administrative actions for security.
 
 ---
 
-## Installation
+## 📂 Project Structure
+
+```text
+EASYPIE/
+├── admin/              # Administrator portal pages (Dashboard, Users, Finance)
+├── api/                # Modular JavaScript logic for Supabase interactions
+├── assets/             # Global CSS styles, page-specific JS, and images
+├── config/             # Supabase initialization and environment configuration
+├── public/             # Static assets (icons, manifest)
+├── .env.example        # Template for environment variables
+├── index.html          # Landing Page
+├── dashboard.html      # Main User Interface
+├── [other_pages].html  # Functional user pages (wallet, plans, etc.)
+├── package.json        # Project dependencies and scripts
+└── vite.config.js      # Multi-page build configuration
+```
+
+---
+
+## 🛠️ Requirements
+
+*   **Node.js:** version 20.x or higher
+*   **npm:** Package manager (included with Node)
+*   **Supabase:** A free or pro project for the backend
+*   **Vercel:** Account for hosting and deployment
+*   **Git:** For version control
+
+---
+
+## 🔧 Installation
 
 1.  **Clone the Repository:**
     ```bash
-    git clone https://github.com/your-username/easypie.git
+    git clone https://github.com/yourusername/easypie.git
     cd easypie
     ```
 
@@ -58,58 +82,77 @@ The project follows a clean and modular architecture for easy maintenance and de
 3.  **Environment Setup:**
     *   Copy `.env.example` to a new file named `.env`.
     *   Input your **Supabase URL** and **Anon Key**.
-    *   Configure your Kuda Bank details and Telegram link.
+    *   Configure your Kuda Bank details and Telegram community link.
 
 4.  **Start Development Server:**
     ```bash
     npm run dev
     ```
 
-5.  **Build for Production:**
-    ```bash
-    npm run build
-    ```
+---
+
+## 🔐 Environment Variables
+
+The project requires the following keys to be set in your `.env` file or deployment dashboard:
+
+| Variable | Description |
+| :--- | :--- |
+| `VITE_SUPABASE_URL` | Your unique Supabase Project URL. |
+| `VITE_SUPABASE_ANON_KEY` | Your Supabase Public API Key. |
+| `VITE_APP_NAME` | EASYPIE |
+| `VITE_APP_TIMEZONE` | Africa/Lagos |
+| `VITE_WELCOME_BONUS` | 500 |
+| `VITE_KUDA_ACCOUNT_NUMBER`| Your registered Kuda account for deposits. |
+| `VITE_TELEGRAM_GROUP` | Your community invitation link. |
 
 ---
 
-## Environment Variables
-The following variables are required for the application to function. Ensure they are set in your deployment environment (e.g., Vercel Dashboard):
+## ☁️ Supabase Setup
 
-*   `VITE_SUPABASE_URL`: Your Supabase project endpoint.
-*   `VITE_SUPABASE_ANON_KEY`: Your Supabase public API key.
-*   `VITE_APP_NAME`: EASYPIE
-*   `VITE_WELCOME_BONUS`: 500
-*   `VITE_KUDA_ACCOUNT_NUMBER`: Your Kuda account details.
-*   `VITE_TELEGRAM_LINK`: Official community link.
+1.  **Authentication:** Enable the Email provider in the Supabase Dashboard. Disable "Confirm Email" for a faster user experience if desired.
+2.  **Database:** Create the necessary tables (`profiles`, `wallets`, `investments`, `transactions`, `deposits`, `withdrawals`, `notifications`, `platform_settings`, `admin_logs`).
+3.  **Realtime:** Enable Replication for the tables you wish to track in real-time (e.g., `notifications`, `wallets`).
+4.  **Storage:** Create a public bucket named `public` for profile avatars and payment proofs.
 
 ---
 
-## Technologies
-*   **Frontend:** HTML5, CSS3 (Modern Flexbox/Grid), JavaScript (ES Modules).
-*   **Backend & Database:** Supabase (PostgreSQL).
-*   **Build Tool:** Vite.
-*   **Deployment:** Vercel.
+## 🚀 Deployment (Vercel)
+
+This project is designed to be deployed on **Vercel** with zero configuration (`vercel.json` is not required).
+
+1.  Push your code to a GitHub/GitLab repository.
+2.  Import the project into Vercel.
+3.  Add all environment variables from your `.env` file to the Vercel project settings.
+4.  Click **Deploy**.
 
 ---
 
-## Security
-EASYPIE is built with a "Security First" mindset:
-*   **No Hardcoded Keys:** All sensitive credentials are managed via Environment Variables.
-*   **Secure Queries:** Database interactions are handled through secure Supabase client protocols.
-*   **Validation:** Strict input validation on all forms to prevent injection and errors.
-*   **Protected Admin Area:** The admin directory is restricted to authorized personnel only.
+## 🛡️ Security
+
+*   **No Hardcoded Secrets:** All credentials are managed via environment variables.
+*   **RLS (Row Level Security):** Ensure RLS is enabled in Supabase so users can only access their own data.
+*   **Admin Protection:** The admin module includes strict role-based verification.
+*   **Input Validation:** All financial inputs are validated on both the client and server side.
 
 ---
 
-## Deployment
-This project is optimized for **Vercel**. 
-*   No `vercel.json` is required. 
-*   Simply connect your GitHub repository to Vercel, import the environment variables, and deploy.
+## ❓ Troubleshooting
+
+*   **404 on subpages:** Ensure `vite.config.js` includes all HTML files in the `rollupOptions.input` section.
+*   **Balance not updating:** Verify that Supabase Realtime is enabled for the `wallets` table.
+*   **Build Errors:** Ensure you are using Node.js version 20 or higher.
 
 ---
 
-## Support
-For technical issues or inquiries, please visit the **Support** page within the application or contact the administrator via the provided admin email.
+## 📜 License
+
+This project is licensed under the **MIT License**.
+
+---
+
+## 📞 Support
+
+For technical assistance or business inquiries, please visit the **Support Center** within the platform or contact us via our **Telegram Community**.
 
 ---
 *© 2024 EASYPIE. All Rights Reserved.*
