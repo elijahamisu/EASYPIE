@@ -470,6 +470,13 @@
         const SB_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
         const BONUS_AMT = parseInt(import.meta.env.VITE_WELCOME_BONUS) || 500;
 
+        // Fail loudly and clearly if env vars are missing (e.g. not set in the deploy
+        // platform's environment settings), instead of letting Supabase throw a vague
+        // error later that renders as "{}" in the UI.
+        if (!SB_URL || !SB_KEY) {
+            console.error('Missing Supabase environment variables. Check VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY are set in your deploy platform, not just your local .env file.');
+        }
+
         // Initialize Supabase
         const supabase = window.supabase.createClient(SB_URL, SB_KEY);
 
@@ -479,6 +486,22 @@
         const btnSpinner = document.getElementById('btnSpinner');
         const btnText = document.getElementById('btnText');
         const welcomeModal = document.getElementById('welcomeModal');
+
+        // Turns any thrown value (real Error, Supabase error object, plain object,
+        // or string) into a readable message instead of printing "{}" or "undefined".
+        function getErrorMessage(err) {
+            if (!err) return 'Something went wrong. Please try again.';
+            if (typeof err === 'string') return err;
+            if (err.message) return err.message;
+            if (err.error_description) return err.error_description;
+            if (err.error) return err.error;
+            try {
+                const asString = JSON.stringify(err);
+                return asString && asString !== '{}' ? asString : 'Something went wrong. Please try again.';
+            } catch {
+                return 'Something went wrong. Please try again.';
+            }
+        }
 
         regForm.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -501,13 +524,18 @@
                 if (password !== confirmPassword) throw new Error("Passwords do not match.");
                 if (password.length < 6) throw new Error("Password must be at least 6 characters.");
                 
-                // 2. Check if username exists
+                // 2. Check if username exists.
+                // Use maybeSingle() instead of single(): single() throws a PostgREST
+                // error whenever zero rows come back, which is the normal case for an
+                // available username — that error was very likely what was landing in
+                // the catch block below as an empty-looking object.
                 const { data: existingUser, error: userCheckErr } = await supabase
                     .from('profiles')
                     .select('username')
                     .eq('username', username)
-                    .single();
-                
+                    .maybeSingle();
+
+                if (userCheckErr) throw new Error("Couldn't verify username right now. Please try again.");
                 if (existingUser) throw new Error("Username already taken. Please choose another.");
 
                 // 3. Signup Auth
@@ -555,7 +583,8 @@
                 }
 
             } catch (err) {
-                showStatus(err.message, 'error');
+                console.error('Registration error:', err);
+                showStatus(getErrorMessage(err), 'error');
                 setLoading(false);
             }
         });
