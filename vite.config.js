@@ -37,7 +37,7 @@ export default defineConfig({
         admin_transactions: resolve(__dirname, 'admin/transactions.html'),
         admin_notifications: resolve(__dirname, 'admin/notifications.html'),
         admin_support: resolve(__dirname, 'admin/support.html'),
-        // admin_settings: resolve(__dirname, 'admin/settings.html'),
+        admin_settings: resolve(__dirname, 'admin/settings.html'),
         admin_reports: resolve(__dirname, 'admin/reports.html'),
       },
     },
