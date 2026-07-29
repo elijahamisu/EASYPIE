@@ -22,7 +22,7 @@ export default defineConfig({
       ////  profile: resolve(__dirname, 'profile.html'),
        // support: resolve(__dirname, 'support.html'),
       //  terms: resolve(__dirname, 'terms.html'),
-      //  giftcode: resolve(__dirname, 'giftcode.html'),
+        giftcode: resolve(__dirname, 'giftcode.html'),
 
         // Admin Pages
       //  admin_dashboard: resolve(__dirname, 'admin/index.html'),
