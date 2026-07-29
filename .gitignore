@@ -1,0 +1,86 @@
+# =============================================================================
+# EASYPIE - GIT IGNORE CONFIGURATION
+# =============================================================================
+
+# --- Node.js / Dependencies ---
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# --- Build & Output ---
+dist/
+dist-ssr/
+build/
+*.local
+.vite/
+.vercel/
+coverage/
+
+# --- Environment Variables (SENSITIVE) ---
+# We ignore all .env files to prevent credential leaks
+.env
+.env.local
+.env.development
+.env.development.local
+.env.test
+.env.test.local
+.env.production
+.env.production.local
+
+# DO NOT ignore the example file so other developers know what to fill
+!.env.example
+
+# --- IDE / Editor Files ---
+.vscode/
+!.vscode/extensions.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.sublime-project
+*.sublime-workspace
+
+# --- Operating System Files ---
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+Desktop.ini
+# Linux
+*~
+
+# --- Logs & Temporary Files ---
+logs/
+*.log
+*.tmp
+*.temp
+*.bak
+*.pid
+*.seed
+*.pid.lock
+
+# --- Caches ---
+.eslintcache
+.stylelintcache
+.prettiercache
+.parcel-cache
+.cache/
+
+# --- Supabase / Backend (Local config if any) ---
+.supabase/
+
+# =============================================================================
+# END OF GITIGNORE
+# =============================================================================
