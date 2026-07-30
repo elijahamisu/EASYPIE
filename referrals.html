@@ -5,15 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Referral Program | EASYPIE</title>
     
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <!-- Supabase Library -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
@@ -47,7 +44,6 @@
 
         .container { width: 92%; max-width: 800px; margin: 0 auto; }
 
-        /* --- Header --- */
         header {
             padding: 20px 0;
             position: sticky; top: 0;
@@ -71,7 +67,6 @@
             font-weight: 700; font-size: 12px;
         }
 
-        /* --- Referral Link Card --- */
         .link-card {
             background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
             padding: 25px; border-radius: 24px; margin: 20px 0;
@@ -102,7 +97,6 @@
         .btn-action:hover { background: rgba(255, 255, 255, 0.2); }
         .btn-share { grid-column: span 2; background: var(--accent-color); }
 
-        /* --- Stats Grid --- */
         .stats-grid {
             display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 25px;
         }
@@ -113,7 +107,6 @@
         .stat-box p { font-size: 10px; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase; }
         .stat-box h4 { font-size: 18px; font-weight: 700; }
 
-        /* --- Info Section --- */
         .info-card {
             background: var(--secondary-bg); padding: 20px; border-radius: 20px;
             border: 1px solid var(--glass-border); margin-bottom: 25px;
@@ -128,7 +121,6 @@
         .step-text h5 { font-size: 13px; margin-bottom: 2px; }
         .step-text p { font-size: 11px; color: var(--text-muted); }
 
-        /* --- Referral List --- */
         .list-section h3 { font-size: 16px; margin-bottom: 15px; display: flex; justify-content: space-between; }
         .list-item {
             background: var(--card-bg); padding: 15px; border-radius: 18px;
@@ -145,7 +137,6 @@
         .registered { background: rgba(156, 163, 175, 0.1); color: #9ca3af; }
         .active { background: rgba(16, 185, 129, 0.1); color: var(--success); }
 
-        /* --- Bottom Nav --- */
         .bottom-nav {
             position: fixed; bottom: 0; left: 0; width: 100%;
             height: var(--nav-height); background: rgba(17, 24, 39, 0.95);
@@ -160,13 +151,11 @@
         .nav-item.active { color: var(--accent-color); }
         .nav-item i { font-size: 18px; }
 
-        /* --- Skeleton & Empty --- */
         .skeleton { background: #1f2937; border-radius: 15px; animation: pulse 1.5s infinite; height: 60px; margin-bottom: 10px; }
         @keyframes pulse { 50% { opacity: 0.5; } }
         .empty-state { text-align: center; padding: 40px 20px; }
         .empty-state i { font-size: 50px; color: var(--text-muted); opacity: 0.2; margin-bottom: 15px; }
 
-        /* --- Toast --- */
         #toast {
             position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%);
             background: var(--success); color: white; padding: 10px 20px;
@@ -189,7 +178,6 @@
     </header>
 
     <main class="container">
-        <!-- Referral Link Section -->
         <section class="link-card">
             <p>Invite your friends and earn rewards when they invest!</p>
             <div class="code-display" id="refCodeDisplay">...</div>
@@ -200,7 +188,6 @@
             </div>
         </section>
 
-        <!-- Stats -->
         <section class="stats-grid">
             <div class="stat-box"><p>Total Referrals</p><h4 id="totalRefs">0</h4></div>
             <div class="stat-box"><p>Active Investors</p><h4 id="activeRefs">0</h4></div>
@@ -208,7 +195,6 @@
             <div class="stat-box"><p>This Month</p><h4 id="monthRefEarnings">₦0.00</h4></div>
         </section>
 
-        <!-- How it works -->
         <section class="info-card">
             <h3>How it works</h3>
             <div class="step">
@@ -225,7 +211,6 @@
             </div>
         </section>
 
-        <!-- Referral List -->
         <section class="list-section">
             <h3>My Network</h3>
             <div id="referralList">
@@ -235,7 +220,6 @@
         </section>
     </main>
 
-    <!-- Bottom Nav -->
     <nav class="bottom-nav">
         <a href="dashboard.html" class="nav-item">
             <i class="fas fa-th-large"></i><span>Home</span>
@@ -281,11 +265,14 @@
         }
 
         async function loadReferralData() {
-            // 1. Get referrals (users who used our code)
+            // Case-insensitive match: referral codes are usernames, and people may
+            // type/share/paste them in different letter casing (e.g. the uppercase
+            // code shown above vs. the lowercase link), so an exact-match comparison
+            // here was silently missing real referrals.
             const { data: referrals, error } = await supabase
                 .from('profiles')
                 .select('full_name, created_at, id')
-                .eq('referral_by', username);
+                .ilike('referral_by', username);
 
             const list = document.getElementById('referralList');
             list.innerHTML = '';
@@ -297,7 +284,6 @@
             } else {
                 document.getElementById('totalRefs').innerText = referrals.length;
                 
-                // Get active status (check if they have active investments)
                 const refIds = referrals.map(r => r.id);
                 const { data: activeCheck } = await supabase.from('investments').select('user_id').in('user_id', refIds).eq('status', 'active');
                 const activeUserIds = new Set(activeCheck?.map(a => a.user_id) || []);
@@ -321,7 +307,6 @@
                 });
             }
 
-            // 2. Get earnings
             const { data: earnings } = await supabase.from('transactions').select('*').eq('user_id', currentUser.id).eq('type', 'referral');
             if (earnings) {
                 const total = earnings.reduce((s, t) => s + parseFloat(t.amount), 0);
