@@ -553,7 +553,7 @@
                 const { data: authData, error: authErr } = await supabase.auth.signUp({
                     email,
                     password,
-                    options: { data: { full_name: fullName, username: username, referral_by: referralCode || null } }
+                    options: { data: { full_name: fullName, username: username, referral_by: referralCode ? referralCode.toLowerCase() : null } }
                 });
 
                 if (authErr) throw authErr;
