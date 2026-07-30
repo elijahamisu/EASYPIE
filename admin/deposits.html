@@ -553,6 +553,55 @@
             document.getElementById('detailModal').style.display = 'flex';
         };
 
+        // Finds whoever referred this depositor and credits them a 20% commission
+        // on the approved deposit amount. Silently returns (no-op) if the depositor
+        // wasn't referred by anyone, or their referral code doesn't match a real user.
+        async function creditReferralCommission(depositorUserId, depositAmount) {
+            const { data: depositorProfile } = await supabase
+                .from('profiles')
+                .select('referral_by, username')
+                .eq('id', depositorUserId)
+                .single();
+
+            if (!depositorProfile || !depositorProfile.referral_by) return;
+
+            // Case-insensitive match, since referral codes are just usernames and
+            // people may have typed/shared them in different letter casing.
+            const { data: referrerProfile } = await supabase
+                .from('profiles')
+                .select('id')
+                .ilike('username', depositorProfile.referral_by)
+                .single();
+
+            if (!referrerProfile) return;
+
+            const commission = parseFloat(depositAmount) * 0.20;
+
+            const { data: referrerWallet } = await supabase
+                .from('wallets')
+                .select('balance')
+                .eq('user_id', referrerProfile.id)
+                .single();
+            if (!referrerWallet) return;
+
+            const newReferrerBalance = parseFloat(referrerWallet.balance) + commission;
+            await supabase.from('wallets').update({ balance: newReferrerBalance }).eq('user_id', referrerProfile.id);
+
+            // type: 'referral' — matches what referrals.html reads for earnings stats
+            await supabase.from('transactions').insert([{
+                user_id: referrerProfile.id,
+                amount: commission,
+                type: 'referral',
+                description: `Referral commission (20%) from @${depositorProfile.username}'s deposit`
+            }]);
+
+            await supabase.from('notifications').insert([{
+                user_id: referrerProfile.id,
+                title: 'Referral Commission Earned',
+                message: `You earned ₦${commission.toLocaleString()} (20%) from @${depositorProfile.username}'s deposit!`
+            }]);
+        }
+
         window.approveDeposit = async (id, amount, userId) => {
             if(!confirm("Approve this deposit and add ₦" + amount.toLocaleString() + " to user wallet?")) return;
 
@@ -575,7 +624,10 @@
                 // 5. User Notification
                 await supabase.from('notifications').insert([{ user_id: userId, title: 'Deposit Approved', message: `Your deposit of ₦${amount.toLocaleString()} has been verified and added to your wallet.` }]);
 
-                // 6. Admin Audit
+                // 6. Referral Commission (20%) — credit whoever referred this depositor, if anyone
+                await creditReferralCommission(userId, amount);
+
+                // 7. Admin Audit
                 await supabase.from('admin_logs').insert([{ admin_id: activeAdmin.id, action: `Approved Deposit #${id}`, target_id: id }]);
 
                 alert("Deposit approved successfully!");
