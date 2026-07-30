@@ -244,7 +244,10 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Bank Name</label>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                        <label style="margin-bottom:0;">Bank Name</label>
+                        <span id="savedDetailsBadge" style="display:none; font-size:11px; color:var(--success);"><i class="fas fa-check-circle"></i> Using saved details</span>
+                    </div>
                     <div class="input-box">
                         <i class="fas fa-university"></i>
                         <input type="text" id="bankName" placeholder="e.g. GTBank" required>
@@ -264,6 +267,10 @@
                     <div class="input-box">
                         <i class="fas fa-user"></i>
                         <input type="text" id="accountName" placeholder="John Doe" required>
+                    </div>
+                    <div class="balance-info" style="text-align:left; margin-top:8px;">
+                        <a href="#" id="saveDetailsLink" style="color: var(--accent-color); text-decoration:none;"><i class="fas fa-save"></i> Save these details for next time</a>
+                        <span id="saveDetailsStatus" style="display:none; color: var(--success); margin-left:8px;"><i class="fas fa-check"></i> Saved</span>
                     </div>
                 </div>
 
@@ -333,9 +340,21 @@
         }
 
         async function loadProfile() {
-            const { data } = await supabase.from('profiles').select('full_name').eq('id', currentUser.id).single();
+            const { data } = await supabase
+                .from('profiles')
+                .select('full_name, saved_bank_name, saved_account_number, saved_account_name')
+                .eq('id', currentUser.id)
+                .single();
+
             if (data) {
                 document.getElementById('userAvatar').innerText = data.full_name.charAt(0).toUpperCase();
+
+                if (data.saved_bank_name || data.saved_account_number || data.saved_account_name) {
+                    document.getElementById('bankName').value = data.saved_bank_name || '';
+                    document.getElementById('accountNumber').value = data.saved_account_number || '';
+                    document.getElementById('accountName').value = data.saved_account_name || '';
+                    document.getElementById('savedDetailsBadge').style.display = 'inline';
+                }
             }
         }
 
@@ -425,6 +444,37 @@
             });
         }
 
+        async function saveBankDetails(showAlert) {
+            const bank = document.getElementById('bankName').value.trim();
+            const accNum = document.getElementById('accountNumber').value.trim();
+            const accName = document.getElementById('accountName').value.trim();
+
+            if (!bank || !accNum || !accName) {
+                if (showAlert) alert('Please fill in bank name, account number, and account name before saving.');
+                return;
+            }
+
+            const { error } = await supabase.from('profiles').update({
+                saved_bank_name: bank,
+                saved_account_number: accNum,
+                saved_account_name: accName
+            }).eq('id', currentUser.id);
+
+            if (!error) {
+                document.getElementById('savedDetailsBadge').style.display = 'inline';
+                const status = document.getElementById('saveDetailsStatus');
+                status.style.display = 'inline';
+                setTimeout(() => { status.style.display = 'none'; }, 2500);
+            } else if (showAlert) {
+                alert('Could not save bank details: ' + error.message);
+            }
+        }
+
+        document.getElementById('saveDetailsLink').addEventListener('click', (e) => {
+            e.preventDefault();
+            saveBankDetails(true);
+        });
+
         document.getElementById('withdrawForm').addEventListener('submit', async (e) => {
             e.preventDefault();
 
@@ -486,6 +536,7 @@
                 }]);
 
                 alert('Withdrawal request submitted successfully! It is now awaiting admin approval.');
+                await saveBankDetails(false);
                 window.location.reload();
 
             } catch (err) {
