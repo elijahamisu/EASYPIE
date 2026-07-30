@@ -121,6 +121,34 @@
             justify-content: center;
             position: relative;
             cursor: pointer;
+            transition: background 0.2s ease, border-color 0.2s ease;
+        }
+
+        .icon-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--accent-color);
+        }
+
+        .icon-btn:focus-visible {
+            outline: 2px solid var(--accent-color);
+            outline-offset: 2px;
+        }
+
+        /* --- Toast --- */
+        #toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--success);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 600;
+            display: none;
+            z-index: 3000;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
 
         .notification-dot {
@@ -396,6 +424,8 @@
 </head>
 <body>
 
+    <div id="toast" role="status" aria-live="polite">Copied to clipboard!</div>
+
     <header>
         <div class="container" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
             <div class="user-info">
@@ -406,11 +436,11 @@
                 </div>
             </div>
             <div class="header-actions">
-                <a href="notifications.html" class="icon-btn">
+                <a href="notifications.html" class="icon-btn" aria-label="Notifications">
                     <i class="fas fa-bell"></i>
                     <div class="notification-dot" id="notifDot"></div>
                 </a>
-                <button class="icon-btn" onclick="logout()">
+                <button class="icon-btn" onclick="logout()" aria-label="Sign out">
                     <i class="fas fa-sign-out-alt"></i>
                 </button>
             </div>
@@ -510,7 +540,7 @@
                 <h4>Refer & Earn</h4>
                 <p>Referral Code: <b id="refCodeText">...</b></p>
             </div>
-            <button onclick="copyRef()" class="icon-btn" style="background: var(--accent-color); border: none;">
+            <button onclick="copyRef()" class="icon-btn" style="background: var(--accent-color); border: none;" aria-label="Copy Referral Code">
                 <i class="fas fa-copy"></i>
             </button>
         </section>
@@ -747,7 +777,13 @@
         window.copyRef = () => {
             const code = window.userRefCode || '...';
             navigator.clipboard.writeText(code);
-            alert('Referral code copied!');
+            const toast = document.getElementById('toast');
+            if (toast) {
+                toast.style.display = 'block';
+                setTimeout(() => {
+                    toast.style.display = 'none';
+                }, 2000);
+            }
         };
 
         window.addEventListener('DOMContentLoaded', init);
