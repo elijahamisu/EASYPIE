@@ -487,6 +487,17 @@
         const btnText = document.getElementById('btnText');
         const welcomeModal = document.getElementById('welcomeModal');
 
+        // Auto-fill the referral code field if the person arrived via a referral
+        // link (e.g. register.html?ref=SOMECODE).
+        (function prefillReferralCode() {
+            const params = new URLSearchParams(window.location.search);
+            const refFromUrl = params.get('ref');
+            if (refFromUrl) {
+                const referralInput = document.getElementById('referralCode');
+                referralInput.value = refFromUrl;
+            }
+        })();
+
         // Turns any thrown value (real Error, Supabase error object, plain object,
         // or string) into a readable message instead of printing "{}" or "undefined".
         function getErrorMessage(err) {
