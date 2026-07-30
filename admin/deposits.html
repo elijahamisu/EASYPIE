@@ -17,11 +17,6 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
-        /* ==========================================================
-           MOBILE-FIRST BASE STYLES
-           Base rules target small screens; min-width media queries
-           further down progressively enhance for larger viewports.
-           ========================================================== */
         :root {
             --primary-bg: #060b13;
             --secondary-bg: #0a0f1a;
@@ -53,7 +48,6 @@
 
         body { min-height: 100vh; min-height: 100dvh; }
 
-        /* --- Sidebar (mobile: off-canvas drawer) --- */
         aside {
             width: min(80vw, var(--sidebar-width));
             background: var(--sidebar-bg);
@@ -96,7 +90,6 @@
         .nav-item i { width: 20px; text-align: center; }
         .nav-item:hover, .nav-item.active { background: rgba(59, 130, 246, 0.1); color: var(--accent-color); border-left: 4px solid var(--accent-color); }
 
-        /* --- Main --- */
         main { width: 100%; min-height: 100vh; min-height: 100dvh; }
 
         header {
@@ -116,7 +109,6 @@
 
         .container { padding: 16px; max-width: 1600px; margin: 0 auto; }
 
-        /* --- Stats Row: 2-up on mobile --- */
         .stats-grid {
             display: grid; grid-template-columns: repeat(2, 1fr);
             gap: 10px; margin-bottom: 18px;
@@ -127,7 +119,6 @@
         .stat-card p { font-size: 10px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; }
         .stat-card h3 { font-size: 18px; font-weight: 700; word-break: break-word; }
 
-        /* --- Toolbar: stacked on mobile --- */
         .toolbar {
             background: var(--card-bg); padding: 14px; border-radius: 14px;
             border: 1px solid var(--glass-border); margin-bottom: 16px;
@@ -152,7 +143,6 @@
             border-radius: 10px; font-weight: 600; cursor: pointer; font-size: 13px; white-space: nowrap;
         }
 
-        /* --- Deposits list: cards on mobile, table at >=768px --- */
         .table-container {
             background: var(--card-bg); border-radius: 18px; border: 1px solid var(--glass-border);
         }
@@ -202,7 +192,6 @@
         .action-icon { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 15px; padding: 6px; transition: 0.2s; }
         .action-icon:hover { color: var(--accent-color); }
 
-        /* --- Modal --- */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.9); display: none; align-items: flex-end;
@@ -226,7 +215,6 @@
         .btn-approve { background: var(--success); color: #fff; }
         .btn-reject { background: var(--danger); color: #fff; }
 
-        /* --- Rejection Modal --- */
         #rejectModal .modal-content { max-width: 400px; }
         .reason-area { width: 100%; height: 100px; background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border); border-radius: 10px; color: white; padding: 10px; outline: none; margin-top: 15px; font-family: inherit; font-size: 14px; }
 
@@ -234,9 +222,6 @@
         .spinner { width: 22px; height: 22px; border: 3px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 1s infinite linear; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* ==========================================================
-           PROGRESSIVE ENHANCEMENT — larger screens
-           ========================================================== */
         @media (min-width: 480px) {
             .stats-grid { grid-template-columns: repeat(4, 1fr); }
         }
@@ -280,7 +265,6 @@
 
     <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="closeSidebar()"></div>
 
-    <!-- Sidebar -->
     <aside id="sidebar">
         <div class="sidebar-header">
             EASYPIE ADMIN
@@ -312,7 +296,6 @@
         </header>
 
         <div class="container">
-            <!-- Stats -->
             <div class="stats-grid">
                 <div class="stat-card"><p>Total Deposits</p><h3 id="statTotal">0</h3></div>
                 <div class="stat-card"><p>Pending</p><h3 id="statPending" style="color: var(--warning);">0</h3></div>
@@ -320,7 +303,6 @@
                 <div class="stat-card"><p>Avg. Deposit</p><h3 id="statAvg">₦0</h3></div>
             </div>
 
-            <!-- Toolbar -->
             <div class="toolbar">
                 <div class="search-box">
                     <i class="fas fa-search"></i>
@@ -337,12 +319,9 @@
                 </div>
             </div>
 
-            <!-- List / Table -->
             <div class="table-container">
-                <!-- Mobile: stacked cards -->
                 <div class="mobile-dep-list" id="depCardList"></div>
 
-                <!-- >=768px: real table -->
                 <table>
                     <thead>
                         <tr>
@@ -355,14 +334,12 @@
                         </tr>
                     </thead>
                     <tbody id="depTableBody">
-                        <!-- Dynamic Content -->
                     </tbody>
                 </table>
             </div>
         </div>
     </main>
 
-    <!-- Details Modal -->
     <div class="modal-overlay" id="detailModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -370,12 +347,10 @@
                 <i class="fas fa-times" onclick="closeModals()" style="cursor:pointer; padding:6px;"></i>
             </div>
             <div class="modal-body" id="modalBody">
-                <!-- User & Deposit Data -->
             </div>
         </div>
     </div>
 
-    <!-- Rejection Reason Modal -->
     <div class="modal-overlay" id="rejectModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -436,6 +411,15 @@
                 .select('*, profiles(full_name, username, email)')
                 .order('created_at', { ascending: false });
 
+            // FIX: previously any error here (RLS block, ambiguous/missing FK, etc.)
+            // was swallowed silently because there was no `else`/error branch —
+            // the table would just stay empty with zero indication why.
+            if (error) {
+                console.error('fetchDeposits error:', error);
+                alert('Could not load deposits: ' + error.message);
+                return;
+            }
+
             if (data) {
                 depositData = data;
                 applyFilters();
@@ -486,7 +470,6 @@
                 const date = new Date(d.created_at);
                 const amount = parseFloat(d.amount).toLocaleString();
 
-                // Desktop table row
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>
@@ -506,7 +489,6 @@
                 `;
                 tableBody.appendChild(row);
 
-                // Mobile stacked card
                 const card = document.createElement('div');
                 card.className = 'dep-card';
                 card.innerHTML = `
@@ -553,9 +535,6 @@
             document.getElementById('detailModal').style.display = 'flex';
         };
 
-        // Finds whoever referred this depositor and credits them a 20% commission
-        // on the approved deposit amount. Silently returns (no-op) if the depositor
-        // wasn't referred by anyone, or their referral code doesn't match a real user.
         async function creditReferralCommission(depositorUserId, depositAmount) {
             const { data: depositorProfile } = await supabase
                 .from('profiles')
@@ -565,8 +544,6 @@
 
             if (!depositorProfile || !depositorProfile.referral_by) return;
 
-            // Case-insensitive match, since referral codes are just usernames and
-            // people may have typed/shared them in different letter casing.
             const { data: referrerProfile } = await supabase
                 .from('profiles')
                 .select('id')
@@ -587,7 +564,6 @@
             const newReferrerBalance = parseFloat(referrerWallet.balance) + commission;
             await supabase.from('wallets').update({ balance: newReferrerBalance }).eq('user_id', referrerProfile.id);
 
-            // type: 'referral' — matches what referrals.html reads for earnings stats
             await supabase.from('transactions').insert([{
                 user_id: referrerProfile.id,
                 amount: commission,
@@ -606,28 +582,21 @@
             if(!confirm("Approve this deposit and add ₦" + amount.toLocaleString() + " to user wallet?")) return;
 
             try {
-                // 1. Update Deposit Status
                 const { error: dErr } = await supabase.from('deposits').update({ status: 'approved' }).eq('id', id);
                 if(dErr) throw dErr;
 
-                // 2. Fetch current wallet
                 const { data: wallet } = await supabase.from('wallets').select('balance').eq('user_id', userId).single();
                 const newBalance = parseFloat(wallet.balance) + parseFloat(amount);
 
-                // 3. Update Wallet Balance
                 const { error: wErr } = await supabase.from('wallets').update({ balance: newBalance }).eq('user_id', userId);
                 if(wErr) throw wErr;
 
-                // 4. Create Transaction Log
                 await supabase.from('transactions').insert([{ user_id: userId, amount: amount, type: 'deposit', description: 'Deposit Verified & Approved' }]);
 
-                // 5. User Notification
                 await supabase.from('notifications').insert([{ user_id: userId, title: 'Deposit Approved', message: `Your deposit of ₦${amount.toLocaleString()} has been verified and added to your wallet.` }]);
 
-                // 6. Referral Commission (20%) — credit whoever referred this depositor, if anyone
                 await creditReferralCommission(userId, amount);
 
-                // 7. Admin Audit
                 await supabase.from('admin_logs').insert([{ admin_id: activeAdmin.id, action: `Approved Deposit #${id}`, target_id: id }]);
 
                 alert("Deposit approved successfully!");
