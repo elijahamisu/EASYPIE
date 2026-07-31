@@ -1,0 +1,3 @@
+## 2025-02-15 - Inline Clipboard Copy Feedback over Blocking Alerts
+**Learning:** Using browser alert() dialogs for copy-to-clipboard interactions is highly disruptive to user workflows and interrupts screen readers. Providing inline, non-blocking visual feedback (such as changing the button color and switching the icon from a copy glyph to a checkmark) creates a smooth, intuitive, and delighted user experience.
+**Action:** Avoid alert() or confirm() for non-destructive actions. Always provide transient inline states (e.g., checkmark icon on copy buttons, subtle toast notifications, or color shifts) to keep interactions seamless.
