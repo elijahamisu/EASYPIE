@@ -406,11 +406,11 @@
                 </div>
             </div>
             <div class="header-actions">
-                <a href="notifications.html" class="icon-btn">
+                <a href="notifications.html" class="icon-btn" aria-label="View notifications">
                     <i class="fas fa-bell"></i>
                     <div class="notification-dot" id="notifDot"></div>
                 </a>
-                <button class="icon-btn" onclick="logout()">
+                <button class="icon-btn" onclick="logout()" aria-label="Log out">
                     <i class="fas fa-sign-out-alt"></i>
                 </button>
             </div>
@@ -510,8 +510,8 @@
                 <h4>Refer & Earn</h4>
                 <p>Referral Code: <b id="refCodeText">...</b></p>
             </div>
-            <button onclick="copyRef()" class="icon-btn" style="background: var(--accent-color); border: none;">
-                <i class="fas fa-copy"></i>
+            <button id="copyRefBtn" onclick="copyRef()" class="icon-btn" style="background: var(--accent-color); border: none;" aria-label="Copy referral code">
+                <i id="copyRefIcon" class="fas fa-copy"></i>
             </button>
         </section>
 
@@ -747,7 +747,17 @@
         window.copyRef = () => {
             const code = window.userRefCode || '...';
             navigator.clipboard.writeText(code);
-            alert('Referral code copied!');
+            const btn = document.getElementById('copyRefBtn');
+            const icon = document.getElementById('copyRefIcon');
+            if (btn && icon) {
+                const originalBg = btn.style.backgroundColor || 'var(--accent-color)';
+                btn.style.backgroundColor = 'var(--success)';
+                icon.className = 'fas fa-check';
+                setTimeout(() => {
+                    btn.style.backgroundColor = originalBg;
+                    icon.className = 'fas fa-copy';
+                }, 2000);
+            }
         };
 
         window.addEventListener('DOMContentLoaded', init);
