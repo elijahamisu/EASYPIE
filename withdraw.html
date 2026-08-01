@@ -240,7 +240,7 @@
                         <i>₦</i>
                         <input type="number" id="withdrawAmount" placeholder="1000" min="1000" required>
                     </div>
-                    <div class="balance-info">Withdrawable: <span id="withdrawableText">₦0.00</span></div>
+                    <div class="balance-info">Withdrawable: <span id="withdrawableText">₦0.00</span><button id="useMaxBtn" type="button" aria-label="Use maximum withdrawable amount" style="color: var(--accent-color); font-weight: 600; cursor: pointer; margin-left: 8px; border: none; background: none; outline: none; font-size: 12px; transition: opacity 0.2s;">Use Max</button></div>
                 </div>
 
                 <div class="form-group">
@@ -390,6 +390,7 @@
             const noticeText = document.getElementById('pendingNoticeText');
             const amountInput = document.getElementById('withdrawAmount');
             const submitBtn = document.getElementById('submitBtn');
+            const useMaxBtn = document.getElementById('useMaxBtn');
 
             if (totalPending > 0) {
                 notice.style.display = 'block';
@@ -398,16 +399,19 @@
                     amountInput.disabled = false;
                     amountInput.max = withdrawableBalance;
                     submitBtn.disabled = false;
+                    if (useMaxBtn) useMaxBtn.style.display = 'inline-block';
                 } else {
                     noticeText.innerText = `You have a pending withdrawal of ₦${totalPending.toLocaleString()} awaiting admin approval. You can't request another withdrawal until it's processed or more funds become available in your wallet.`;
                     amountInput.disabled = true;
                     submitBtn.disabled = true;
+                    if (useMaxBtn) useMaxBtn.style.display = 'none';
                 }
             } else {
                 notice.style.display = 'none';
                 amountInput.disabled = false;
                 amountInput.removeAttribute('max');
                 submitBtn.disabled = false;
+                if (useMaxBtn) useMaxBtn.style.display = 'inline-block';
             }
         }
 
@@ -473,6 +477,16 @@
         document.getElementById('saveDetailsLink').addEventListener('click', (e) => {
             e.preventDefault();
             saveBankDetails(true);
+        });
+
+        document.getElementById('useMaxBtn').addEventListener('click', () => {
+            const amountInput = document.getElementById('withdrawAmount');
+            if (amountInput.disabled) return;
+            if (withdrawableBalance < 1000) {
+                alert('Your withdrawable balance is less than the minimum withdrawal amount of ₦1,000.');
+                return;
+            }
+            amountInput.value = Math.floor(withdrawableBalance);
         });
 
         document.getElementById('withdrawForm').addEventListener('submit', async (e) => {
