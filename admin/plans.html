@@ -398,8 +398,8 @@
 
                 <div class="form-row two-col">
                     <div class="form-group">
-                        <label>Rate Multiplier (Amount \u00d7 this = Daily Profit)</label>
-                        <input type="number" step="0.0001" class="form-control" id="planMultiplier" placeholder="e.g. 0.05">
+                        <label>Rate Multiplier (Amount \u00d7 this = Total Income)</label>
+                        <input type="number" step="0.0001" class="form-control" id="planMultiplier" placeholder="e.g. 3">
                     </div>
                     <div class="form-group">
                         <label>Duration (Days)</label>
@@ -409,9 +409,9 @@
 
                 <!-- Live-calculated preview: updates automatically as the fields above are filled in -->
                 <div class="calc-preview" id="calcPreview" style="display:none;">
+                    <div class="calc-preview-row"><span>Total Income over duration</span><span id="previewTotal">₦0</span></div>
                     <div class="calc-preview-row"><span>Daily Profit</span><span id="previewDaily">₦0</span></div>
                     <div class="calc-preview-row"><span>Equivalent Daily Rate</span><span id="previewRate">0%</span></div>
-                    <div class="calc-preview-row"><span>Total Income over duration</span><span id="previewTotal">₦0</span></div>
                 </div>
 
                 <div class="form-group">
@@ -440,12 +440,15 @@
         // Matches the 'investment_plans' table columns:
         // id, name, min_amount, max_amount, daily_profit_percent, duration_days, is_available, created_at
         //
-        // The admin form below collects a Naira daily-profit figure (at the plan's
-        // minimum investment) instead of asking the admin to work out a percentage
-        // by hand. That figure is converted to daily_profit_percent automatically
-        // right before saving — the database schema and the rest of the app
-        // (investment calculations on the user-facing plans page, etc.) are
-        // unaffected and keep working exactly as before.
+        // The admin form below collects a "Rate Multiplier" that is applied ONLY
+        // to the investment amount to produce the plan's TOTAL income over its
+        // full duration (Total Income = Amount x Multiplier). Daily Profit is then
+        // derived automatically by spreading that total evenly across the
+        // duration (Daily Profit = Total Income / Duration). That daily figure is
+        // what gets converted to daily_profit_percent before saving — the
+        // database schema and the rest of the app (investment calculations on the
+        // user-facing plans page, etc.) are unaffected and keep working exactly
+        // as before.
 
         let plansData = [];
         let filteredPlans = [];
@@ -483,8 +486,7 @@
         }
 
         // What ₦ figure a plan pays daily at its own minimum investment — used
-        // both for the table/card display and matches minAmount x multiplier,
-        // where multiplier is stored as daily_profit_percent / 100.
+        // both for the table/card display and matches minAmount x (daily_profit_percent / 100).
         function dailyProfitNairaAtMin(plan) {
             const min = parseFloat(plan.min_amount || 0);
             const rate = parseFloat(plan.daily_profit_percent || 0);
@@ -577,9 +579,10 @@
             });
         }
 
-        // Recomputes Daily Profit, the equivalent %, and Total Income, live as
-        // the admin fills in Min Amount / Multiplier / Duration.
-        // Daily Profit = Min Amount x Multiplier. Total Income = Daily Profit x Duration.
+        // Recomputes Total Income, Daily Profit, and the equivalent daily %, live
+        // as the admin fills in Min Amount / Multiplier / Duration.
+        // Total Income = Min Amount x Multiplier (multiplier only ever touches the
+        // investment amount). Daily Profit = Total Income / Duration (auto-derived).
         function updateCalcPreview() {
             const minAmount = parseFloat(document.getElementById('planMinAmount').value);
             const multiplier = parseFloat(document.getElementById('planMultiplier').value);
@@ -592,17 +595,19 @@
                 return;
             }
 
-            const dailyProfit = minAmount * multiplier;
-            const ratePercent = multiplier * 100;
-
-            document.getElementById('previewDaily').innerText = `₦${dailyProfit.toLocaleString()}`;
-            document.getElementById('previewRate').innerText = `${ratePercent.toFixed(2)}%`;
+            // Multiplier only multiplies the investment amount.
+            const totalIncome = minAmount * multiplier;
+            document.getElementById('previewTotal').innerText = `₦${totalIncome.toLocaleString()}`;
 
             if (duration && duration > 0) {
-                const totalIncome = dailyProfit * duration;
-                document.getElementById('previewTotal').innerText = `₦${totalIncome.toLocaleString()}`;
+                const dailyProfit = totalIncome / duration;
+                const ratePercent = (dailyProfit / minAmount) * 100;
+
+                document.getElementById('previewDaily').innerText = `₦${dailyProfit.toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
+                document.getElementById('previewRate').innerText = `${ratePercent.toFixed(2)}%`;
             } else {
-                document.getElementById('previewTotal').innerText = 'Enter duration to calculate';
+                document.getElementById('previewDaily').innerText = 'Enter duration to calculate';
+                document.getElementById('previewRate').innerText = '—';
             }
 
             preview.style.display = 'block';
@@ -630,10 +635,11 @@
             document.getElementById('planName').value = p.name || '';
             document.getElementById('planMinAmount').value = p.min_amount || '';
             document.getElementById('planMaxAmount').value = p.max_amount || '';
-            // Convert the stored percentage back into a multiplier for editing,
-            // matching what the admin originally would have typed.
-            document.getElementById('planMultiplier').value = p.daily_profit_percent
-                ? (parseFloat(p.daily_profit_percent) / 100).toString()
+            // Convert the stored daily percentage back into a total-income
+            // multiplier for editing, matching what the admin originally typed:
+            // multiplier = (daily_profit_percent / 100) x duration_days.
+            document.getElementById('planMultiplier').value = (p.daily_profit_percent && p.duration_days)
+                ? (((parseFloat(p.daily_profit_percent) / 100)) * p.duration_days).toString()
                 : '';
             document.getElementById('planDuration').value = p.duration_days || '';
             document.getElementById('planActive').checked = !!p.is_available;
@@ -662,9 +668,12 @@
             if (isNaN(multiplier) || multiplier <= 0) { alert('Please enter a valid rate multiplier.'); return; }
             if (isNaN(duration) || duration <= 0) { alert('Please enter a valid duration in days.'); return; }
 
-            // Convert the multiplier into the percentage the rest of the app
-            // (investment calculations) actually runs on.
-            const dailyRatePercent = multiplier * 100;
+            // Multiplier only multiplies the amount to get the plan's total
+            // income; daily profit (and the % the rest of the app runs on) is
+            // derived by spreading that total across the duration.
+            const totalIncome = minAmount * multiplier;
+            const dailyProfit = totalIncome / duration;
+            const dailyRatePercent = (dailyProfit / minAmount) * 100;
 
             const payload = {
                 name,
