@@ -121,6 +121,19 @@
             justify-content: center;
             position: relative;
             cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .icon-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--accent-color);
+            transform: translateY(-2px);
+        }
+
+        .icon-btn:focus-visible {
+            outline: 2px solid #ffffff;
+            outline-offset: 2px;
+            background: rgba(255, 255, 255, 0.15);
         }
 
         .notification-dot {
@@ -406,11 +419,11 @@
                 </div>
             </div>
             <div class="header-actions">
-                <a href="notifications.html" class="icon-btn">
+                <a href="notifications.html" class="icon-btn" aria-label="View notifications" title="View notifications">
                     <i class="fas fa-bell"></i>
                     <div class="notification-dot" id="notifDot"></div>
                 </a>
-                <button class="icon-btn" onclick="logout()">
+                <button class="icon-btn" onclick="logout()" aria-label="Logout" title="Logout">
                     <i class="fas fa-sign-out-alt"></i>
                 </button>
             </div>
@@ -510,7 +523,7 @@
                 <h4>Refer & Earn</h4>
                 <p>Referral Code: <b id="refCodeText">...</b></p>
             </div>
-            <button onclick="copyRef()" class="icon-btn" style="background: var(--accent-color); border: none;">
+            <button onclick="copyRef()" class="icon-btn" style="background: var(--accent-color); border: none;" aria-label="Copy referral code" title="Copy referral code">
                 <i class="fas fa-copy"></i>
             </button>
         </section>
