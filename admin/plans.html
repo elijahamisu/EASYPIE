@@ -398,8 +398,8 @@
 
                 <div class="form-row two-col">
                     <div class="form-group">
-                        <label>Daily Profit (₦) at Min. Investment</label>
-                        <input type="number" class="form-control" id="planDailyProfitNaira" placeholder="e.g. 250">
+                        <label>Rate Multiplier (Amount \u00d7 this = Daily Profit)</label>
+                        <input type="number" step="0.0001" class="form-control" id="planMultiplier" placeholder="e.g. 0.05">
                     </div>
                     <div class="form-group">
                         <label>Duration (Days)</label>
@@ -409,8 +409,9 @@
 
                 <!-- Live-calculated preview: updates automatically as the fields above are filled in -->
                 <div class="calc-preview" id="calcPreview" style="display:none;">
+                    <div class="calc-preview-row"><span>Daily Profit</span><span id="previewDaily">₦0</span></div>
                     <div class="calc-preview-row"><span>Equivalent Daily Rate</span><span id="previewRate">0%</span></div>
-                    <div class="calc-preview-row"><span>Total Return over duration</span><span id="previewTotal">₦0</span></div>
+                    <div class="calc-preview-row"><span>Total Income over duration</span><span id="previewTotal">₦0</span></div>
                 </div>
 
                 <div class="form-group">
@@ -482,7 +483,8 @@
         }
 
         // What ₦ figure a plan pays daily at its own minimum investment — used
-        // both for the table/card display and to derive the stored percentage.
+        // both for the table/card display and matches minAmount x multiplier,
+        // where multiplier is stored as daily_profit_percent / 100.
         function dailyProfitNairaAtMin(plan) {
             const min = parseFloat(plan.min_amount || 0);
             const rate = parseFloat(plan.daily_profit_percent || 0);
@@ -575,27 +577,30 @@
             });
         }
 
-        // Recomputes the equivalent %, and the total return over the entered
-        // duration, live as the admin fills in Min Amount / Daily Profit (₦) /
-        // Duration. Runs on every keystroke in those three fields.
+        // Recomputes Daily Profit, the equivalent %, and Total Income, live as
+        // the admin fills in Min Amount / Multiplier / Duration.
+        // Daily Profit = Min Amount x Multiplier. Total Income = Daily Profit x Duration.
         function updateCalcPreview() {
             const minAmount = parseFloat(document.getElementById('planMinAmount').value);
-            const dailyNaira = parseFloat(document.getElementById('planDailyProfitNaira').value);
+            const multiplier = parseFloat(document.getElementById('planMultiplier').value);
             const duration = parseInt(document.getElementById('planDuration').value, 10);
 
             const preview = document.getElementById('calcPreview');
 
-            if (!minAmount || minAmount <= 0 || !dailyNaira || dailyNaira <= 0) {
+            if (!minAmount || minAmount <= 0 || isNaN(multiplier) || multiplier <= 0) {
                 preview.style.display = 'none';
                 return;
             }
 
-            const ratePercent = (dailyNaira / minAmount) * 100;
+            const dailyProfit = minAmount * multiplier;
+            const ratePercent = multiplier * 100;
+
+            document.getElementById('previewDaily').innerText = `₦${dailyProfit.toLocaleString()}`;
             document.getElementById('previewRate').innerText = `${ratePercent.toFixed(2)}%`;
 
             if (duration && duration > 0) {
-                const totalReturn = dailyNaira * duration;
-                document.getElementById('previewTotal').innerText = `₦${totalReturn.toLocaleString()} (+ principal)`;
+                const totalIncome = dailyProfit * duration;
+                document.getElementById('previewTotal').innerText = `₦${totalIncome.toLocaleString()}`;
             } else {
                 document.getElementById('previewTotal').innerText = 'Enter duration to calculate';
             }
@@ -609,7 +614,7 @@
             document.getElementById('planName').value = '';
             document.getElementById('planMinAmount').value = '';
             document.getElementById('planMaxAmount').value = '';
-            document.getElementById('planDailyProfitNaira').value = '';
+            document.getElementById('planMultiplier').value = '';
             document.getElementById('planDuration').value = '';
             document.getElementById('planActive').checked = true;
             document.getElementById('calcPreview').style.display = 'none';
@@ -625,10 +630,10 @@
             document.getElementById('planName').value = p.name || '';
             document.getElementById('planMinAmount').value = p.min_amount || '';
             document.getElementById('planMaxAmount').value = p.max_amount || '';
-            // Convert the stored percentage back into a ₦ figure (at min investment)
-            // for editing, matching what the admin originally would have entered.
-            document.getElementById('planDailyProfitNaira').value = p.min_amount && p.daily_profit_percent
-                ? (parseFloat(p.min_amount) * parseFloat(p.daily_profit_percent) / 100).toFixed(2)
+            // Convert the stored percentage back into a multiplier for editing,
+            // matching what the admin originally would have typed.
+            document.getElementById('planMultiplier').value = p.daily_profit_percent
+                ? (parseFloat(p.daily_profit_percent) / 100).toString()
                 : '';
             document.getElementById('planDuration').value = p.duration_days || '';
             document.getElementById('planActive').checked = !!p.is_available;
@@ -645,7 +650,7 @@
             const name = document.getElementById('planName').value.trim();
             const minAmount = parseFloat(document.getElementById('planMinAmount').value);
             const maxAmount = parseFloat(document.getElementById('planMaxAmount').value);
-            const dailyNaira = parseFloat(document.getElementById('planDailyProfitNaira').value);
+            const multiplier = parseFloat(document.getElementById('planMultiplier').value);
             const duration = parseInt(document.getElementById('planDuration').value, 10);
             const isActive = document.getElementById('planActive').checked;
 
@@ -654,12 +659,12 @@
                 alert('Please enter a valid amount range (max must be greater than min).');
                 return;
             }
-            if (isNaN(dailyNaira) || dailyNaira <= 0) { alert('Please enter a valid daily profit amount in \u20a6.'); return; }
+            if (isNaN(multiplier) || multiplier <= 0) { alert('Please enter a valid rate multiplier.'); return; }
             if (isNaN(duration) || duration <= 0) { alert('Please enter a valid duration in days.'); return; }
 
-            // Convert the ₦-at-minimum figure into the percentage the rest of the
-            // app (investment calculations) actually runs on.
-            const dailyRatePercent = (dailyNaira / minAmount) * 100;
+            // Convert the multiplier into the percentage the rest of the app
+            // (investment calculations) actually runs on.
+            const dailyRatePercent = multiplier * 100;
 
             const payload = {
                 name,
@@ -728,7 +733,7 @@
                 document.getElementById('sidebarBackdrop').classList.add('active');
             };
 
-            ['planMinAmount', 'planDailyProfitNaira', 'planDuration'].forEach(id => {
+            ['planMinAmount', 'planMultiplier', 'planDuration'].forEach(id => {
                 document.getElementById(id).addEventListener('input', updateCalcPreview);
             });
         }
