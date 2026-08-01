@@ -430,7 +430,9 @@
 
             document.getElementById('cDaily').innerText = `₦${daily.toLocaleString()}`;
             document.getElementById('cDuration').innerText = `${selectedPlan.duration} Days`;
-            document.getElementById('cTotal').innerText = `₦${(total + amount).toLocaleString()}`;
+            // "Total Return" is the total profit over the plan's duration
+            // (daily profit x days) — it should not also add the principal back in.
+            document.getElementById('cTotal').innerText = `₦${total.toLocaleString()}`;
         }
 
         document.getElementById('investAmount').addEventListener('input', updateCalc);
