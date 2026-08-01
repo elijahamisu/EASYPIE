@@ -311,13 +311,7 @@
         let currentUser = null;
         let userWallet = 0;
         let selectedPlan = null;
-
-        // Dynamic Plans Data (Usually fetched from Supabase, but defined here for stability)
-        const DEFAULT_PLANS = [
-            { id: 1, name: 'Starter Plan', min: 5000, max: 20000, daily: 5, duration: 30 },
-            { id: 2, name: 'Professional Plan', min: 50000, max: 200000, daily: 8, duration: 45 },
-            { id: 3, name: 'Executive Plan', min: 500000, max: 5000000, daily: 12, duration: 60 }
-        ];
+        let plans = []; // populated from Supabase in loadPlans()
 
         // Helper: the daily % rate still drives the actual math everywhere (this
         // hasn't changed), but plan cards are shown before the person enters an
@@ -327,12 +321,39 @@
             return (plan.min * plan.daily) / 100;
         }
 
+        // Fetches active plans from the investment_plans table (the same table the
+        // admin panel's plans.html manages) and maps its column names to the
+        // shape the rest of this page's code expects.
+        async function loadPlans() {
+            const { data, error } = await supabase
+                .from('investment_plans')
+                .select('*')
+                .eq('is_available', true)
+                .order('min_amount', { ascending: true });
+
+            if (error) {
+                console.error('Failed to load investment plans:', error.message);
+                plans = [];
+                return;
+            }
+
+            plans = (data || []).map(p => ({
+                id: p.id,
+                name: p.name,
+                min: parseFloat(p.min_amount),
+                max: parseFloat(p.max_amount),
+                daily: parseFloat(p.daily_profit_percent),
+                duration: p.duration_days
+            }));
+        }
+
         async function init() {
             const { data: { session } } = await supabase.auth.getSession();
             if (!session) { window.location.href = 'login.html'; return; }
             currentUser = session.user;
 
             await loadWallet();
+            await loadPlans();
             renderPlans();
             loadProfile();
         }
@@ -358,7 +379,12 @@
             list.innerHTML = '';
             table.innerHTML = '';
 
-            DEFAULT_PLANS.forEach(plan => {
+            if (plans.length === 0) {
+                list.innerHTML = `<p style="text-align:center; color:var(--text-muted); padding:20px;">No investment plans are currently available. Please check back later.</p>`;
+                return;
+            }
+
+            plans.forEach(plan => {
                 const exampleDaily = dailyProfitAtMin(plan);
 
                 // Card
@@ -372,7 +398,7 @@
                         <div class="spec-item"><p>Min Invest</p><h5>₦${plan.min.toLocaleString()}</h5></div>
                         <div class="spec-item"><p>Duration</p><h5>${plan.duration} Days</h5></div>
                     </div>
-                    <button class="btn-invest" onclick="openInvestModal(${plan.id})">Invest Now</button>
+                    <button class="btn-invest" onclick="openInvestModal('${plan.id}')">Invest Now</button>
                 `;
                 list.appendChild(card);
 
@@ -384,7 +410,7 @@
         }
 
         window.openInvestModal = (id) => {
-            selectedPlan = DEFAULT_PLANS.find(p => p.id === id);
+            selectedPlan = plans.find(p => p.id === id);
             document.getElementById('mPlanName').innerText = selectedPlan.name;
             document.getElementById('limitText').innerText = `Limit: ₦${selectedPlan.min.toLocaleString()} - ₦${selectedPlan.max.toLocaleString()}`;
             document.getElementById('investModal').style.display = 'flex';
