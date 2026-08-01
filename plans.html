@@ -5,15 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Investment Plans | EASYPIE</title>
     
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <!-- Supabase Library -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
@@ -46,7 +43,6 @@
 
         .container { width: 92%; max-width: 800px; margin: 0 auto; }
 
-        /* --- Header --- */
         header {
             padding: 20px 0;
             position: sticky; top: 0;
@@ -72,7 +68,6 @@
             font-weight: 700; font-size: 12px;
         }
 
-        /* --- Wallet Bar --- */
         .wallet-bar {
             background: var(--secondary-bg);
             padding: 15px; border-radius: 15px;
@@ -84,7 +79,6 @@
         .wallet-info p { font-size: 12px; color: var(--text-muted); }
         .wallet-info h4 { font-size: 18px; color: var(--success); }
 
-        /* --- Plan Cards --- */
         .plans-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
 
         .plan-card {
@@ -123,7 +117,6 @@
             font-weight: 700; font-size: 15px; cursor: pointer;
         }
 
-        /* --- Investment Modal / Calculator --- */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.85);
@@ -166,7 +159,6 @@
             margin-top: 10px; text-align: center;
         }
 
-        /* --- Comparison Table --- */
         .comparison-section { margin-top: 40px; }
         .comp-table {
             width: 100%; border-collapse: collapse;
@@ -175,13 +167,11 @@
         .comp-table th { text-align: left; color: var(--text-muted); padding: 10px; border-bottom: 1px solid var(--glass-border); }
         .comp-table td { padding: 15px 10px; border-bottom: 1px solid var(--glass-border); }
 
-        /* --- FAQ --- */
         .faq-section { margin-top: 40px; }
         .faq-item { margin-bottom: 15px; background: var(--card-bg); padding: 15px; border-radius: 12px; }
         .faq-item h4 { font-size: 14px; margin-bottom: 5px; color: var(--accent-color); }
         .faq-item p { font-size: 13px; color: var(--text-muted); line-height: 1.4; }
 
-        /* --- Bottom Nav --- */
         .bottom-nav {
             position: fixed; bottom: 0; left: 0; width: 100%;
             height: var(--nav-height); background: rgba(17, 24, 39, 0.95);
@@ -198,7 +188,6 @@
         .nav-item.active { color: var(--accent-color); }
         .nav-item i { font-size: 18px; }
 
-        /* --- Utilities --- */
         .skeleton { height: 150px; background: #1f2937; border-radius: 24px; animation: pulse 1.5s infinite; }
         @keyframes pulse { 50% { opacity: 0.5; } }
         .hidden { display: none; }
@@ -232,7 +221,6 @@
         <section>
             <h2 style="margin-bottom: 20px; font-size: 20px;">Available Plans</h2>
             <div id="plansList" class="plans-grid">
-                <!-- Skeleton Loader -->
                 <div class="skeleton"></div>
                 <div class="skeleton"></div>
             </div>
@@ -245,7 +233,7 @@
                 <thead>
                     <tr>
                         <th>Plan</th>
-                        <th>Daily %</th>
+                        <th>Daily Profit</th>
                         <th>Min</th>
                     </tr>
                 </thead>
@@ -331,6 +319,14 @@
             { id: 3, name: 'Executive Plan', min: 500000, max: 5000000, daily: 12, duration: 60 }
         ];
 
+        // Helper: the daily % rate still drives the actual math everywhere (this
+        // hasn't changed), but plan cards are shown before the person enters an
+        // amount, so we show what the daily profit looks like in Naira at the
+        // plan's minimum investment as a concrete example.
+        function dailyProfitAtMin(plan) {
+            return (plan.min * plan.daily) / 100;
+        }
+
         async function init() {
             const { data: { session } } = await supabase.auth.getSession();
             if (!session) { window.location.href = 'login.html'; return; }
@@ -363,13 +359,15 @@
             table.innerHTML = '';
 
             DEFAULT_PLANS.forEach(plan => {
+                const exampleDaily = dailyProfitAtMin(plan);
+
                 // Card
                 const card = document.createElement('div');
                 card.className = 'plan-card';
                 card.innerHTML = `
                     <div class="plan-badge">Popular</div>
                     <h3>${plan.name}</h3>
-                    <p class="profit-tag">${plan.daily}% Daily Profit</p>
+                    <p class="profit-tag">₦${exampleDaily.toLocaleString()} Daily Profit (at min. investment)</p>
                     <div class="plan-specs">
                         <div class="spec-item"><p>Min Invest</p><h5>₦${plan.min.toLocaleString()}</h5></div>
                         <div class="spec-item"><p>Duration</p><h5>${plan.duration} Days</h5></div>
@@ -380,7 +378,7 @@
 
                 // Table Row
                 const row = document.createElement('tr');
-                row.innerHTML = `<td>${plan.name}</td><td>${plan.daily}%</td><td>₦${plan.min.toLocaleString()}</td>`;
+                row.innerHTML = `<td>${plan.name}</td><td>₦${exampleDaily.toLocaleString()}</td><td>₦${plan.min.toLocaleString()}</td>`;
                 table.appendChild(row);
             });
         }
@@ -416,7 +414,6 @@
             const err = document.getElementById('errorMsg');
             err.style.display = 'none';
 
-            // Validations
             if (amount < selectedPlan.min || amount > selectedPlan.max) {
                 err.innerText = `Amount must be between ₦${selectedPlan.min.toLocaleString()} and ₦${selectedPlan.max.toLocaleString()}`;
                 err.style.display = 'block';
@@ -429,16 +426,13 @@
                 return;
             }
 
-            // Start processing
             setLoading(true);
 
             try {
-                // 1. Calculate dates
                 const startDate = new Date();
                 const endDate = new Date();
                 endDate.setDate(startDate.getDate() + selectedPlan.duration);
 
-                // 2. Create Investment Record
                 const { error: invErr } = await supabase.from('investments').insert([{
                     user_id: currentUser.id,
                     plan_name: selectedPlan.name,
@@ -449,11 +443,9 @@
                 }]);
                 if (invErr) throw invErr;
 
-                // 3. Deduct from wallet
                 const { error: wallErr } = await supabase.from('wallets').update({ balance: userWallet - amount }).eq('user_id', currentUser.id);
                 if (wallErr) throw wallErr;
 
-                // 4. Record Transaction
                 await supabase.from('transactions').insert([{
                     user_id: currentUser.id,
                     amount: amount,
@@ -461,7 +453,6 @@
                     description: `Invested in ${selectedPlan.name}`
                 }]);
 
-                // 5. Send Notification
                 await supabase.from('notifications').insert([{
                     user_id: currentUser.id,
                     title: 'Investment Successful',
