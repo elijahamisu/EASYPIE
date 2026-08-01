@@ -5,23 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Investment Plans | EASYPIE Admin</title>
 
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
-    <!-- Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <!-- Supabase Library -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
-        /* ==========================================================
-           MOBILE-FIRST BASE STYLES
-           Base rules target small screens; min-width media queries
-           further down progressively enhance for larger viewports.
-           ========================================================== */
         :root {
             --primary-bg: #060b13;
             --secondary-bg: #0a0f1a;
@@ -53,7 +45,6 @@
 
         body { min-height: 100vh; min-height: 100dvh; }
 
-        /* --- Sidebar (mobile: off-canvas drawer) --- */
         aside {
             width: min(80vw, var(--sidebar-width));
             background: var(--sidebar-bg);
@@ -96,7 +87,6 @@
         .nav-item i { width: 20px; text-align: center; }
         .nav-item:hover, .nav-item.active { background: rgba(59, 130, 246, 0.1); color: var(--accent-color); border-left: 4px solid var(--accent-color); }
 
-        /* --- Main --- */
         main { width: 100%; min-height: 100vh; min-height: 100dvh; }
 
         header {
@@ -116,7 +106,6 @@
 
         .container { padding: 16px; max-width: 1600px; margin: 0 auto; }
 
-        /* --- Stats Row: 2-up on mobile --- */
         .stats-grid {
             display: grid; grid-template-columns: repeat(2, 1fr);
             gap: 10px; margin-bottom: 18px;
@@ -127,7 +116,6 @@
         .stat-card p { font-size: 10px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; }
         .stat-card h3 { font-size: 18px; font-weight: 700; word-break: break-word; }
 
-        /* --- Toolbar: stacked on mobile --- */
         .toolbar {
             background: var(--card-bg); padding: 14px; border-radius: 14px;
             border: 1px solid var(--glass-border); margin-bottom: 16px;
@@ -152,7 +140,6 @@
             border-radius: 10px; font-weight: 600; cursor: pointer; font-size: 13px; white-space: nowrap;
         }
 
-        /* --- Plans list: cards on mobile, table at >=768px --- */
         .table-container {
             background: var(--card-bg); border-radius: 18px; border: 1px solid var(--glass-border);
         }
@@ -193,7 +180,6 @@
         .action-icon:hover { color: var(--accent-color); }
         .action-icon.danger:hover { color: var(--danger); }
 
-        /* --- Modal (Create / Edit Plan) --- */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.9); display: none; align-items: flex-end;
@@ -234,6 +220,19 @@
         .toggle-switch input:checked + .toggle-slider { background-color: var(--success); }
         .toggle-switch input:checked + .toggle-slider::before { transform: translateX(20px); }
 
+        .calc-preview {
+            background: rgba(59, 130, 246, 0.08);
+            border: 1px solid rgba(59, 130, 246, 0.25);
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 16px;
+            font-size: 13px;
+        }
+        .calc-preview-row { display: flex; justify-content: space-between; margin-bottom: 6px; }
+        .calc-preview-row:last-child { margin-bottom: 0; }
+        .calc-preview-row span:first-child { color: var(--text-muted); }
+        .calc-preview-row span:last-child { font-weight: 700; color: var(--success); }
+
         .action-bar { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--glass-border); }
         .btn-modal { padding: 14px; border-radius: 12px; border: none; font-weight: 700; font-size: 13px; cursor: pointer; flex: 1; min-height: 46px; }
         .btn-save { background: var(--accent-color); color: #fff; }
@@ -245,9 +244,6 @@
 
         .empty-state { text-align: center; padding: 24px; color: var(--text-muted); font-size: 13px; }
 
-        /* ==========================================================
-           PROGRESSIVE ENHANCEMENT — larger screens
-           ========================================================== */
         @media (min-width: 480px) {
             .stats-grid { grid-template-columns: repeat(4, 1fr); }
         }
@@ -360,7 +356,7 @@
                         <tr>
                             <th>Plan Name</th>
                             <th>Amount Range</th>
-                            <th>Daily Rate</th>
+                            <th>Daily Profit</th>
                             <th>Duration</th>
                             <th>Status</th>
                             <th>Actions</th>
@@ -402,13 +398,19 @@
 
                 <div class="form-row two-col">
                     <div class="form-group">
-                        <label>Daily Profit Rate (%)</label>
-                        <input type="number" step="0.01" class="form-control" id="planDailyRate" placeholder="2.5">
+                        <label>Daily Profit (₦) at Min. Investment</label>
+                        <input type="number" class="form-control" id="planDailyProfitNaira" placeholder="e.g. 250">
                     </div>
                     <div class="form-group">
                         <label>Duration (Days)</label>
                         <input type="number" class="form-control" id="planDuration" placeholder="30">
                     </div>
+                </div>
+
+                <!-- Live-calculated preview: updates automatically as the fields above are filled in -->
+                <div class="calc-preview" id="calcPreview" style="display:none;">
+                    <div class="calc-preview-row"><span>Equivalent Daily Rate</span><span id="previewRate">0%</span></div>
+                    <div class="calc-preview-row"><span>Total Return over duration</span><span id="previewTotal">₦0</span></div>
                 </div>
 
                 <div class="form-group">
@@ -436,6 +438,13 @@
 
         // Matches the 'investment_plans' table columns:
         // id, name, min_amount, max_amount, daily_profit_percent, duration_days, is_available, created_at
+        //
+        // The admin form below collects a Naira daily-profit figure (at the plan's
+        // minimum investment) instead of asking the admin to work out a percentage
+        // by hand. That figure is converted to daily_profit_percent automatically
+        // right before saving — the database schema and the rest of the app
+        // (investment calculations on the user-facing plans page, etc.) are
+        // unaffected and keep working exactly as before.
 
         let plansData = [];
         let filteredPlans = [];
@@ -470,6 +479,14 @@
             } else if (error) {
                 console.error('Failed to load investment plans:', error.message);
             }
+        }
+
+        // What ₦ figure a plan pays daily at its own minimum investment — used
+        // both for the table/card display and to derive the stored percentage.
+        function dailyProfitNairaAtMin(plan) {
+            const min = parseFloat(plan.min_amount || 0);
+            const rate = parseFloat(plan.daily_profit_percent || 0);
+            return (min * rate) / 100;
         }
 
         function updateStats() {
@@ -514,7 +531,7 @@
                 const statusLabel = p.is_available ? 'Active' : 'Inactive';
                 const minAmt = parseFloat(p.min_amount || 0).toLocaleString();
                 const maxAmt = parseFloat(p.max_amount || 0).toLocaleString();
-                const rate = parseFloat(p.daily_profit_percent || 0);
+                const dailyNaira = dailyProfitNairaAtMin(p).toLocaleString();
 
                 // Desktop table row
                 const row = document.createElement('tr');
@@ -523,7 +540,7 @@
                         <p style="font-weight:700">${p.name}</p>
                     </td>
                     <td>₦${minAmt} - ₦${maxAmt}</td>
-                    <td style="color:var(--success)">${rate}% / day</td>
+                    <td style="color:var(--success)">₦${dailyNaira} / day</td>
                     <td>${p.duration_days} days</td>
                     <td><span class="status-badge ${statusClass}">${statusLabel}</span></td>
                     <td>
@@ -545,7 +562,7 @@
                     </div>
                     <div class="plan-card-details">
                         <div><span class="label">Amount Range</span>₦${minAmt} - ₦${maxAmt}</div>
-                        <div><span class="label">Daily Rate</span><span class="rate">${rate}%</span></div>
+                        <div><span class="label">Daily Profit</span><span class="rate">₦${dailyNaira}</span></div>
                         <div><span class="label">Duration</span>${p.duration_days} days</div>
                         <div><span class="label">Plan ID</span>${p.id.toString().slice(0,8)}</div>
                     </div>
@@ -558,15 +575,44 @@
             });
         }
 
+        // Recomputes the equivalent %, and the total return over the entered
+        // duration, live as the admin fills in Min Amount / Daily Profit (₦) /
+        // Duration. Runs on every keystroke in those three fields.
+        function updateCalcPreview() {
+            const minAmount = parseFloat(document.getElementById('planMinAmount').value);
+            const dailyNaira = parseFloat(document.getElementById('planDailyProfitNaira').value);
+            const duration = parseInt(document.getElementById('planDuration').value, 10);
+
+            const preview = document.getElementById('calcPreview');
+
+            if (!minAmount || minAmount <= 0 || !dailyNaira || dailyNaira <= 0) {
+                preview.style.display = 'none';
+                return;
+            }
+
+            const ratePercent = (dailyNaira / minAmount) * 100;
+            document.getElementById('previewRate').innerText = `${ratePercent.toFixed(2)}%`;
+
+            if (duration && duration > 0) {
+                const totalReturn = dailyNaira * duration;
+                document.getElementById('previewTotal').innerText = `₦${totalReturn.toLocaleString()} (+ principal)`;
+            } else {
+                document.getElementById('previewTotal').innerText = 'Enter duration to calculate';
+            }
+
+            preview.style.display = 'block';
+        }
+
         window.openCreateModal = () => {
             document.getElementById('planModalTitle').innerText = 'New Investment Plan';
             document.getElementById('planId').value = '';
             document.getElementById('planName').value = '';
             document.getElementById('planMinAmount').value = '';
             document.getElementById('planMaxAmount').value = '';
-            document.getElementById('planDailyRate').value = '';
+            document.getElementById('planDailyProfitNaira').value = '';
             document.getElementById('planDuration').value = '';
             document.getElementById('planActive').checked = true;
+            document.getElementById('calcPreview').style.display = 'none';
             document.getElementById('planModal').style.display = 'flex';
         };
 
@@ -579,9 +625,14 @@
             document.getElementById('planName').value = p.name || '';
             document.getElementById('planMinAmount').value = p.min_amount || '';
             document.getElementById('planMaxAmount').value = p.max_amount || '';
-            document.getElementById('planDailyRate').value = p.daily_profit_percent || '';
+            // Convert the stored percentage back into a ₦ figure (at min investment)
+            // for editing, matching what the admin originally would have entered.
+            document.getElementById('planDailyProfitNaira').value = p.min_amount && p.daily_profit_percent
+                ? (parseFloat(p.min_amount) * parseFloat(p.daily_profit_percent) / 100).toFixed(2)
+                : '';
             document.getElementById('planDuration').value = p.duration_days || '';
             document.getElementById('planActive').checked = !!p.is_available;
+            updateCalcPreview();
             document.getElementById('planModal').style.display = 'flex';
         };
 
@@ -594,7 +645,7 @@
             const name = document.getElementById('planName').value.trim();
             const minAmount = parseFloat(document.getElementById('planMinAmount').value);
             const maxAmount = parseFloat(document.getElementById('planMaxAmount').value);
-            const dailyRate = parseFloat(document.getElementById('planDailyRate').value);
+            const dailyNaira = parseFloat(document.getElementById('planDailyProfitNaira').value);
             const duration = parseInt(document.getElementById('planDuration').value, 10);
             const isActive = document.getElementById('planActive').checked;
 
@@ -603,14 +654,18 @@
                 alert('Please enter a valid amount range (max must be greater than min).');
                 return;
             }
-            if (isNaN(dailyRate) || dailyRate <= 0) { alert('Please enter a valid daily profit rate.'); return; }
+            if (isNaN(dailyNaira) || dailyNaira <= 0) { alert('Please enter a valid daily profit amount in \u20a6.'); return; }
             if (isNaN(duration) || duration <= 0) { alert('Please enter a valid duration in days.'); return; }
+
+            // Convert the ₦-at-minimum figure into the percentage the rest of the
+            // app (investment calculations) actually runs on.
+            const dailyRatePercent = (dailyNaira / minAmount) * 100;
 
             const payload = {
                 name,
                 min_amount: minAmount,
                 max_amount: maxAmount,
-                daily_profit_percent: dailyRate,
+                daily_profit_percent: dailyRatePercent,
                 duration_days: duration,
                 is_available: isActive
             };
@@ -672,6 +727,10 @@
                 document.getElementById('sidebar').classList.add('active');
                 document.getElementById('sidebarBackdrop').classList.add('active');
             };
+
+            ['planMinAmount', 'planDailyProfitNaira', 'planDuration'].forEach(id => {
+                document.getElementById(id).addEventListener('input', updateCalcPreview);
+            });
         }
 
         window.closeSidebar = () => {
