@@ -5,15 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Redeem Gift Code | EASYPIE</title>
     
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <!-- Supabase Library -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
@@ -48,7 +45,6 @@
 
         .container { width: 92%; max-width: 600px; margin: 0 auto; }
 
-        /* --- Header --- */
         header {
             padding: 20px 0;
             position: sticky; top: 0;
@@ -72,7 +68,6 @@
             font-weight: 700; font-size: 12px;
         }
 
-        /* --- Info Card --- */
         .info-card {
             background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
             padding: 20px; border-radius: 20px; margin: 20px 0;
@@ -84,7 +79,6 @@
         .info-card h3 { font-size: 15px; margin-bottom: 4px; }
         .info-card p { font-size: 11px; color: rgba(255,255,255,0.7); line-height: 1.4; }
 
-        /* --- Redeem Form --- */
         .redeem-section {
             background: var(--secondary-bg); padding: 25px; border-radius: 24px;
             border: 1px solid var(--glass-border); margin-bottom: 25px;
@@ -119,7 +113,6 @@
             margin-top: 15px; font-size: 13px; cursor: pointer;
         }
 
-        /* --- Redemption History --- */
         .history-section h3 { font-size: 16px; margin-bottom: 15px; display: flex; justify-content: space-between; }
         
         .history-item {
@@ -133,11 +126,9 @@
         .hist-amount h4 { font-size: 14px; font-weight: 700; color: var(--success); }
         .hist-amount p { font-size: 10px; color: var(--text-muted); }
 
-        /* --- Empty State --- */
         .empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); }
         .empty-state i { font-size: 40px; margin-bottom: 15px; opacity: 0.2; }
 
-        /* --- Modal --- */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.9); display: none; align-items: center;
@@ -161,7 +152,6 @@
         .btn-modal-primary { background: var(--accent-color); color: white; }
         .btn-modal-outline { background: transparent; color: var(--text-muted); border: 1px solid var(--glass-border); }
 
-        /* --- Bottom Nav --- */
         .bottom-nav {
             position: fixed; bottom: 0; left: 0; width: 100%;
             height: var(--nav-height); background: rgba(17, 24, 39, 0.95);
@@ -176,7 +166,6 @@
         .nav-item.active { color: var(--accent-color); }
         .nav-item i { font-size: 18px; }
 
-        /* --- Spinner --- */
         .spinner { width: 22px; height: 22px; border: 3px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 1s infinite linear; display: none; margin: 0 auto; }
         @keyframes spin { to { transform: rotate(360deg); } }
     </style>
@@ -194,7 +183,6 @@
     </header>
 
     <main class="container">
-        <!-- Info Card -->
         <section class="info-card">
             <i class="fas fa-gift"></i>
             <div>
@@ -203,7 +191,6 @@
             </div>
         </section>
 
-        <!-- Form -->
         <section class="redeem-section">
             <div class="form-group">
                 <label>Enter Gift Code</label>
@@ -220,7 +207,6 @@
             <button class="btn-clear" onclick="clearInput()">Clear Input</button>
         </section>
 
-        <!-- History -->
         <section class="history-section">
             <h3>Redemption History</h3>
             <div id="redemptionList">
@@ -319,6 +305,11 @@
             });
         }
 
+        // All validation, wallet crediting, transaction logging, and notification
+        // now happen atomically inside the redeem_gift_code() database function —
+        // it runs as SECURITY DEFINER, so it can safely credit the wallet without
+        // needing to open up a general-purpose "users can update their own wallet"
+        // policy (which would let anyone set their own balance directly via the API).
         window.redeemCode = async () => {
             const codeInput = document.getElementById('giftCodeInput').value.trim().toUpperCase();
             if (!codeInput) { alert('Please enter a gift code.'); return; }
@@ -332,69 +323,12 @@
             spin.style.display = 'block';
 
             try {
-                // 1. Verify Code Exists & Active
-                const { data: codeData, error: codeErr } = await supabase
-                    .from('gift_codes')
-                    .select('*')
-                    .eq('code', codeInput)
-                    .eq('is_active', true)
-                    .single();
+                const { data, error } = await supabase.rpc('redeem_gift_code', { p_code: codeInput });
 
-                if (codeErr || !codeData) throw new Error("Invalid or inactive gift code.");
+                if (error) throw error;
 
-                // 2. Check Expiry
-                if (codeData.expiry_date && new Date(codeData.expiry_date) < new Date()) {
-                    throw new Error("This gift code has expired.");
-                }
-
-                // 3. Check Global Limit
-                if (codeData.max_redemptions && codeData.current_redemptions >= codeData.max_redemptions) {
-                    throw new Error("This code has reached its maximum redemption limit.");
-                }
-
-                // 4. Check User Already Redeemed
-                const { data: existingRedemption } = await supabase
-                    .from('gift_code_redemptions')
-                    .select('id')
-                    .eq('user_id', currentUser.id)
-                    .eq('gift_code_id', codeData.id)
-                    .single();
-
-                if (existingRedemption) throw new Error("You have already redeemed this code.");
-
-                // 5. Atomic Update Start (Redemption + Wallet + Transaction + Notification)
-                // Increment current_redemptions
-                await supabase.from('gift_codes').update({ current_redemptions: codeData.current_redemptions + 1 }).eq('id', codeData.id);
-
-                // Insert Redemption Record
-                await supabase.from('gift_code_redemptions').insert([{
-                    user_id: currentUser.id,
-                    gift_code_id: codeData.id
-                }]);
-
-                // Update Wallet
-                const { data: wallet } = await supabase.from('wallets').select('balance').eq('user_id', currentUser.id).single();
-                const newBalance = parseFloat(wallet.balance) + parseFloat(codeData.reward_amount);
-                await supabase.from('wallets').update({ balance: newBalance }).eq('user_id', currentUser.id);
-
-                // Insert Transaction
-                await supabase.from('transactions').insert([{
-                    user_id: currentUser.id,
-                    amount: codeData.reward_amount,
-                    type: 'gift',
-                    description: `Gift Code Redeemed: ${codeInput}`
-                }]);
-
-                // Insert Notification
-                await supabase.from('notifications').insert([{
-                    user_id: currentUser.id,
-                    title: 'Reward Credited!',
-                    message: `You successfully redeemed gift code ${codeInput} and received ₦${parseFloat(codeData.reward_amount).toLocaleString()}.`
-                }]);
-
-                // Show Success Modal
-                document.getElementById('rewardCode').innerText = codeInput;
-                document.getElementById('rewardAmount').innerText = `₦${parseFloat(codeData.reward_amount).toLocaleString()}`;
+                document.getElementById('rewardCode').innerText = data.code;
+                document.getElementById('rewardAmount').innerText = `₦${parseFloat(data.amount).toLocaleString()}`;
                 document.getElementById('rewardTime').innerText = `Claimed on ${new Date().toLocaleString()}`;
                 document.getElementById('successModal').style.display = 'flex';
 
