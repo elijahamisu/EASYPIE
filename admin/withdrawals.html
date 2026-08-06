@@ -439,12 +439,15 @@
             document.getElementById('sidebarBackdrop').classList.remove('active');
         };
 
-        // NEW: read the platform-wide lock flag from platform_settings (key/value row)
+        // NEW: read the platform-wide lock flag from platform_settings (single-row table)
+        let platformSettingsId = null;
+
         async function fetchLockStatus() {
             const { data, error } = await supabase
                 .from('platform_settings')
-                .select('value')
-                .eq('key', 'withdrawals_locked')
+                .select('id, withdrawals_locked')
+                .order('id', { ascending: true })
+                .limit(1)
                 .maybeSingle();
 
             if (error) {
@@ -453,7 +456,8 @@
                 return;
             }
 
-            withdrawalsLocked = data?.value === 'true' || data?.value === true;
+            platformSettingsId = data?.id ?? null;
+            withdrawalsLocked = data?.withdrawals_locked === true;
             renderLockStatus();
             document.getElementById('lockToggleBtn').disabled = false;
         }
@@ -468,9 +472,14 @@
             btn.classList.toggle('is-locked', withdrawalsLocked);
         }
 
-        // NEW: flips the platform-wide lock. Requires an RLS policy allowing admins to
-        // update platform_settings (see schema notes).
+        // NEW: flips the platform-wide lock on the single platform_settings row.
+        // Requires admin-only UPDATE access on platform_settings (see schema notes).
         async function toggleWithdrawalsLock() {
+            if (platformSettingsId == null) {
+                alert('Could not determine settings row — try reloading the page.');
+                return;
+            }
+
             const newVal = !withdrawalsLocked;
             if (!confirm(`${newVal ? 'Lock' : 'Unlock'} withdrawals platform-wide? ${newVal ? 'Users will be unable to submit new withdrawal requests until you unlock.' : ''}`)) return;
 
@@ -479,7 +488,8 @@
 
             const { error } = await supabase
                 .from('platform_settings')
-                .upsert({ key: 'withdrawals_locked', value: newVal ? 'true' : 'false' }, { onConflict: 'key' });
+                .update({ withdrawals_locked: newVal, updated_at: new Date().toISOString(), last_updated_by: currentAdmin.id })
+                .eq('id', platformSettingsId);
 
             if (error) {
                 alert('Could not update lock: ' + error.message);
