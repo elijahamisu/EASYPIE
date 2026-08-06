@@ -419,17 +419,18 @@
             }
         }
 
-        // NEW: checks the global lock (platform_settings) and whether the user has an active investment
+        // NEW: checks the global lock (platform_settings — single-row table) and whether
+        // the user has an active investment
         async function checkRestrictions() {
             const [{ data: setting, error: settingErr }, { count, error: planErr }] = await Promise.all([
-                supabase.from('platform_settings').select('value').eq('key', 'withdrawals_locked').maybeSingle(),
+                supabase.from('platform_settings').select('withdrawals_locked').order('id', { ascending: true }).limit(1).maybeSingle(),
                 supabase.from('investments').select('id', { count: 'exact', head: true }).eq('user_id', currentUser.id).eq('status', 'active')
             ]);
 
             if (settingErr) console.error('checkRestrictions (lock):', settingErr);
             if (planErr) console.error('checkRestrictions (plan):', planErr);
 
-            withdrawalsLocked = setting?.value === 'true' || setting?.value === true;
+            withdrawalsLocked = setting?.withdrawals_locked === true;
             hasActivePlan = (count || 0) > 0;
 
             renderRestriction();
