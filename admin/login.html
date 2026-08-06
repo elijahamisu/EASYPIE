@@ -378,7 +378,10 @@
                         <label for="adminPassword">Password</label>
                         <div class="input-wrapper">
                             <i class="fas fa-lock"></i>
-                            <input type="password" id="adminPassword" class="form-control" placeholder="••••••••••••" required autocomplete="current-password">
+                            <input type="password" id="adminPassword" class="form-control" placeholder="••••••••••••" required autocomplete="current-password" style="padding-right: 45px;">
+                            <button type="button" class="toggle-password-btn" aria-label="Show password" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10; padding: 4px;">
+                                <i class="fas fa-eye" style="position: static; transform: none; color: inherit;"></i>
+                            </button>
                         </div>
                     </div>
 
@@ -440,6 +443,23 @@
         const submitBtn = document.getElementById('submitBtn');
         const btnText = document.getElementById('btnText');
         const btnSpinner = document.getElementById('btnSpinner');
+
+        // Toggle password visibility
+        document.querySelectorAll('.toggle-password-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const input = btn.previousElementSibling;
+                const icon = btn.querySelector('i');
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    icon.className = 'fas fa-eye-slash';
+                    btn.setAttribute('aria-label', 'Hide password');
+                } else {
+                    input.type = 'password';
+                    icon.className = 'fas fa-eye';
+                    btn.setAttribute('aria-label', 'Show password');
+                }
+            });
+        });
 
         async function checkExistingAdminSession() {
             try {
