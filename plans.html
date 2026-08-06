@@ -457,41 +457,24 @@
             setLoading(true);
 
             try {
-                const startDate = new Date();
-                const endDate = new Date();
-                endDate.setDate(startDate.getDate() + selectedPlan.duration);
+                // The investment record, wallet deduction, transaction log, and
+                // notification all happen atomically inside the create_investment()
+                // database function — it runs as SECURITY DEFINER, so it can safely
+                // deduct the wallet without needing a general-purpose "users can
+                // update their own wallet" policy (which would let anyone set their
+                // own balance directly via the API).
+                const { data, error } = await supabase.rpc('create_investment', {
+                    p_plan_id: selectedPlan.id,
+                    p_amount: amount
+                });
 
-                const { error: invErr } = await supabase.from('investments').insert([{
-                    user_id: currentUser.id,
-                    plan_name: selectedPlan.name,
-                    amount: amount,
-                    daily_profit: (amount * selectedPlan.daily) / 100,
-                    status: 'active',
-                    end_date: endDate.toISOString()
-                }]);
-                if (invErr) throw invErr;
-
-                const { error: wallErr } = await supabase.from('wallets').update({ balance: userWallet - amount }).eq('user_id', currentUser.id);
-                if (wallErr) throw wallErr;
-
-                await supabase.from('transactions').insert([{
-                    user_id: currentUser.id,
-                    amount: amount,
-                    type: 'investment',
-                    description: `Invested in ${selectedPlan.name}`
-                }]);
-
-                await supabase.from('notifications').insert([{
-                    user_id: currentUser.id,
-                    title: 'Investment Successful',
-                    message: `You successfully invested ₦${amount.toLocaleString()} in the ${selectedPlan.name}.`
-                }]);
+                if (error) throw error;
 
                 alert('Investment Successful!');
                 window.location.href = 'investment.html';
 
             } catch (e) {
-                err.innerText = "An error occurred. Please try again.";
+                err.innerText = e.message || "An error occurred. Please try again.";
                 err.style.display = 'block';
                 setLoading(false);
             }
