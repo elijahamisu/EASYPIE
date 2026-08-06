@@ -194,9 +194,27 @@
         .empty-state { text-align: center; padding: 60px 20px; }
         .empty-state i { font-size: 50px; color: var(--text-muted); opacity: 0.2; margin-bottom: 20px; }
         .empty-state p { font-size: 14px; color: var(--text-muted); margin-bottom: 25px; }
+
+        #toast {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--success);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 600;
+            display: none;
+            z-index: 3000;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
     </style>
 </head>
 <body>
+
+    <div id="toast" role="status" aria-live="polite">Transaction ID copied!</div>
 
     <header>
         <div class="container header-flex">
@@ -434,9 +452,15 @@
                 <div class="detail-row"><span>Description</span><b>${t.description || 'N/A'}</b></div>
             `;
             
+            let copyTimeout;
             document.getElementById('copyIdBtn').onclick = () => {
                 navigator.clipboard.writeText(t.id);
-                alert('ID Copied!');
+                const toast = document.getElementById('toast');
+                toast.style.display = 'block';
+                if (copyTimeout) clearTimeout(copyTimeout);
+                copyTimeout = setTimeout(() => {
+                    toast.style.display = 'none';
+                }, 2000);
             };
             
             document.getElementById('txModal').style.display = 'flex';
