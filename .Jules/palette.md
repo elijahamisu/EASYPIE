@@ -1,0 +1,3 @@
+## 2026-08-06 - [Overriding global input-wrapper icon styles for custom icons]
+**Learning:** In the EASYPIE design system, the CSS selector `.input-wrapper i` applies absolute positioning on the left side to all icons within the wrapper. When placing button-nested custom icons (like password visibility toggle eyes) on the right side of the input wrapper, they will suffer layout leaks. Applying inline style overrides (`position: static; transform: none; color: inherit;`) on custom icons inside nested buttons prevents layout leaks gracefully.
+**Action:** Always include inline overrides on button icons when nesting elements inside `.input-wrapper` elements.

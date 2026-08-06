@@ -357,7 +357,10 @@
                         <label for="password">Password</label>
                         <div class="input-wrapper">
                             <i class="fas fa-lock"></i>
-                            <input type="password" id="password" class="form-control" placeholder="••••••••" required>
+                            <input type="password" id="password" class="form-control" placeholder="••••••••" required style="padding-right: 45px;">
+                            <button type="button" class="toggle-password-btn" aria-label="Show password" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10; padding: 4px;">
+                                <i class="fas fa-eye" style="position: static; transform: none; color: inherit;"></i>
+                            </button>
                         </div>
                     </div>
 
@@ -417,6 +420,23 @@
         const btnText = submitBtn.querySelector('.btn-text');
         const btnSpinner = document.getElementById('btnSpinner');
         const telegramModal = document.getElementById('telegramModal');
+
+        // Toggle password visibility
+        document.querySelectorAll('.toggle-password-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const input = btn.previousElementSibling;
+                const icon = btn.querySelector('i');
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    icon.className = 'fas fa-eye-slash';
+                    btn.setAttribute('aria-label', 'Hide password');
+                } else {
+                    input.type = 'password';
+                    icon.className = 'fas fa-eye';
+                    btn.setAttribute('aria-label', 'Show password');
+                }
+            });
+        });
 
         // Form Submission Logic
         loginForm.addEventListener('submit', async (e) => {
