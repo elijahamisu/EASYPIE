@@ -124,6 +124,18 @@
             font-size: 12px; color: var(--text-muted); margin-top: 5px; text-align: right;
         }
 
+        .fee-breakdown {
+            display: none;
+            background: rgba(0,0,0,0.25);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 12px 14px;
+            margin: -6px 0 18px;
+            font-size: 12.5px;
+        }
+        .fee-row { display: flex; justify-content: space-between; padding: 4px 0; color: var(--text-muted); }
+        .fee-row-total { border-top: 1px solid var(--glass-border); margin-top: 4px; padding-top: 8px; color: var(--text-main); font-weight: 700; font-size: 14px; }
+
         .btn-submit {
             width: 100%; padding: 16px; background: var(--accent-color);
             color: white; border: none; border-radius: 15px; font-weight: 700;
@@ -243,6 +255,11 @@
                     <div class="balance-info">Withdrawable: <span id="withdrawableText">₦0.00</span></div>
                 </div>
 
+                <div class="fee-breakdown" id="feeBreakdown">
+                    <div class="fee-row"><span>Withdrawal Charge (15%)</span><span id="feeAmountText">₦0.00</span></div>
+                    <div class="fee-row fee-row-total"><span>You'll Receive</span><span id="netAmountText">₦0.00</span></div>
+                </div>
+
                 <div class="form-group">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
                         <label style="margin-bottom:0;">Bank Name</label>
@@ -328,6 +345,27 @@
         let availableBalance = 0;   // raw wallet.balance
         let totalPending = 0;       // sum of this user's pending withdrawal amounts
         let withdrawableBalance = 0; // balance - totalPending -> what they're actually allowed to request now
+
+        const WITHDRAWAL_FEE_PERCENT = 15;
+
+        function updateFeeBreakdown() {
+            const amount = parseFloat(document.getElementById('withdrawAmount').value) || 0;
+            const breakdown = document.getElementById('feeBreakdown');
+
+            if (amount <= 0) {
+                breakdown.style.display = 'none';
+                return;
+            }
+
+            const fee = amount * (WITHDRAWAL_FEE_PERCENT / 100);
+            const net = amount - fee;
+
+            document.getElementById('feeAmountText').innerText = `₦${fee.toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
+            document.getElementById('netAmountText').innerText = `₦${net.toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
+            breakdown.style.display = 'block';
+        }
+
+        document.getElementById('withdrawAmount').addEventListener('input', updateFeeBreakdown);
 
         async function init() {
             const { data: { session } } = await supabase.auth.getSession();
@@ -507,12 +545,19 @@
             spin.style.display = 'block';
 
             try {
+                const feeAmount = amount * (WITHDRAWAL_FEE_PERCENT / 100);
+                const netAmount = amount - feeAmount;
+
                 // 1. Create Withdrawal Request
                 // NOTE: the definitive check against pending withdrawals also lives in a database
                 // trigger on the withdrawals table, so this can't be bypassed by calling the API directly.
+                // `amount` stays the gross figure deducted from the wallet; fee_amount/net_amount
+                // record the 15% charge breakdown for admin payout reference.
                 const { error: wErr } = await supabase.from('withdrawals').insert([{
                     user_id: currentUser.id,
                     amount: amount,
+                    fee_amount: feeAmount,
+                    net_amount: netAmount,
                     bank_name: bank,
                     account_number: accNum,
                     account_name: accName,
@@ -525,14 +570,14 @@
                     user_id: currentUser.id,
                     amount: amount,
                     type: 'withdrawal',
-                    description: `Withdrawal request to ${bank}`
+                    description: `Withdrawal request to ${bank} (15% charge applies, net payout ₦${netAmount.toLocaleString()})`
                 }]);
 
                 // 3. Create Notification
                 await supabase.from('notifications').insert([{
                     user_id: currentUser.id,
                     title: 'Withdrawal Pending',
-                    message: `Your withdrawal request of ₦${amount.toLocaleString()} is currently pending approval.`
+                    message: `Your withdrawal request of ₦${amount.toLocaleString()} is pending approval. A 15% charge applies — you'll receive ₦${netAmount.toLocaleString()}.`
                 }]);
 
                 alert('Withdrawal request submitted successfully! It is now awaiting admin approval.');
