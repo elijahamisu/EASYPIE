@@ -119,6 +119,18 @@
         .stat-card p { font-size: 10px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; }
         .stat-card h3 { font-size: 18px; font-weight: 700; word-break: break-word; }
 
+        /* NEW: lock toggle card */
+        .lock-card {
+            display: flex; align-items: center; justify-content: space-between;
+            gap: 10px;
+        }
+        .btn-lock-toggle {
+            border: none; padding: 10px 14px; border-radius: 10px;
+            font-weight: 700; font-size: 12px; cursor: pointer; white-space: nowrap;
+            background: var(--danger); color: white; min-height: 40px;
+        }
+        .btn-lock-toggle.is-locked { background: var(--success); }
+
         .toolbar {
             background: var(--card-bg); padding: 14px; border-radius: 14px;
             border: 1px solid var(--glass-border); margin-bottom: 16px;
@@ -311,6 +323,14 @@
                 <div class="stat-card"><p>Pending Approval</p><h3 id="statPending" style="color: var(--warning);">0</h3></div>
                 <div class="stat-card"><p>Total Disbursed</p><h3 id="statTotalDisbursed" style="color: var(--success);">₦0</h3></div>
                 <div class="stat-card"><p>Average Amount</p><h3 id="statAvg">₦0</h3></div>
+                <!-- NEW: platform-wide withdrawal lock -->
+                <div class="stat-card lock-card">
+                    <div>
+                        <p>Withdrawals</p>
+                        <h3 id="lockStatusText" style="color: var(--success);">Open</h3>
+                    </div>
+                    <button id="lockToggleBtn" class="btn-lock-toggle" disabled>Lock</button>
+                </div>
             </div>
 
             <div class="toolbar">
@@ -388,6 +408,7 @@
         let filteredWit = [];
         let currentAdmin = null;
         let activeActionId = null;
+        let withdrawalsLocked = false; // NEW
 
         async function init() {
             const { data: { session } } = await supabase.auth.getSession();
@@ -401,10 +422,12 @@
             document.getElementById('loader').style.display = 'none';
 
             await fetchWithdrawals();
+            await fetchLockStatus(); // NEW
             setupRealtime();
 
             document.getElementById('witSearch').addEventListener('input', applyFilters);
             document.getElementById('statusFilter').addEventListener('change', applyFilters);
+            document.getElementById('lockToggleBtn').addEventListener('click', toggleWithdrawalsLock); // NEW
             document.getElementById('mobileMenuBtn').onclick = () => {
                 document.getElementById('sidebar').classList.add('active');
                 document.getElementById('sidebarBackdrop').classList.add('active');
@@ -415,6 +438,59 @@
             document.getElementById('sidebar').classList.remove('active');
             document.getElementById('sidebarBackdrop').classList.remove('active');
         };
+
+        // NEW: read the platform-wide lock flag from platform_settings (key/value row)
+        async function fetchLockStatus() {
+            const { data, error } = await supabase
+                .from('platform_settings')
+                .select('value')
+                .eq('key', 'withdrawals_locked')
+                .maybeSingle();
+
+            if (error) {
+                console.error('fetchLockStatus error:', error);
+                document.getElementById('lockStatusText').innerText = 'Unknown';
+                return;
+            }
+
+            withdrawalsLocked = data?.value === 'true' || data?.value === true;
+            renderLockStatus();
+            document.getElementById('lockToggleBtn').disabled = false;
+        }
+
+        function renderLockStatus() {
+            const text = document.getElementById('lockStatusText');
+            const btn = document.getElementById('lockToggleBtn');
+
+            text.innerText = withdrawalsLocked ? 'Locked' : 'Open';
+            text.style.color = withdrawalsLocked ? 'var(--danger)' : 'var(--success)';
+            btn.innerText = withdrawalsLocked ? 'Unlock' : 'Lock';
+            btn.classList.toggle('is-locked', withdrawalsLocked);
+        }
+
+        // NEW: flips the platform-wide lock. Requires an RLS policy allowing admins to
+        // update platform_settings (see schema notes).
+        async function toggleWithdrawalsLock() {
+            const newVal = !withdrawalsLocked;
+            if (!confirm(`${newVal ? 'Lock' : 'Unlock'} withdrawals platform-wide? ${newVal ? 'Users will be unable to submit new withdrawal requests until you unlock.' : ''}`)) return;
+
+            const btn = document.getElementById('lockToggleBtn');
+            btn.disabled = true;
+
+            const { error } = await supabase
+                .from('platform_settings')
+                .upsert({ key: 'withdrawals_locked', value: newVal ? 'true' : 'false' }, { onConflict: 'key' });
+
+            if (error) {
+                alert('Could not update lock: ' + error.message);
+                btn.disabled = false;
+                return;
+            }
+
+            withdrawalsLocked = newVal;
+            renderLockStatus();
+            btn.disabled = false;
+        }
 
         async function fetchWithdrawals() {
             // FIX: withdrawals has TWO foreign keys into profiles (user_id AND processed_by),
