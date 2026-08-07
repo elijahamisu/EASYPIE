@@ -233,6 +233,9 @@
 
         .user-card-details { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 13px; }
         .user-card-details .label { color: var(--text-muted); font-size: 11px; text-transform: uppercase; display: block; margin-bottom: 2px; }
+        .investment-line { display: block; font-size: 12px; line-height: 1.5; }
+        .investment-line .amt { color: var(--success); font-weight: 600; }
+        .no-plan { color: var(--text-muted); font-style: italic; }
 
         .user-card-actions { display: flex; gap: 8px; border-top: 1px solid var(--glass-border); padding-top: 10px; }
 
@@ -294,6 +297,19 @@
             grid-template-columns: 1fr 1fr;
             gap: 14px;
         }
+
+        .modal-plan-list {
+            background: rgba(0,0,0,0.2);
+            padding: 16px;
+            border-radius: 14px;
+            margin-bottom: 16px;
+        }
+        .modal-plan-list h4 { font-size: 11px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px; letter-spacing: 0.5px; }
+        .plan-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--glass-border); font-size: 13px; }
+        .plan-row:last-child { border-bottom: none; }
+        .plan-row .plan-name { font-weight: 600; }
+        .plan-row .plan-status { font-size: 10px; text-transform: uppercase; margin-left: 8px; color: var(--text-muted); }
+        .plan-row .plan-amount { color: var(--success); font-weight: 700; }
 
         .modal-actions { display: flex; flex-direction: column; gap: 10px; margin-top: 16px; }
 
@@ -483,15 +499,26 @@
         }
 
         async function fetchUsers() {
-            // Join with wallets to get balance and investments to get active count
+            // Join with wallets to get balance and investments to get plan_name/amount/status.
+            // NOTE: this requires RLS on wallets/investments to allow admins to read every
+            // row (not just their own) — see fix_admin_wallet_investment_rls.sql. Without
+            // that, these embedded arrays silently come back empty for every user that
+            // isn't the currently logged-in admin, which is why balance/investments were
+            // showing as 0 for everyone.
             const { data, error } = await supabase
                 .from('profiles')
                 .select(`
                     *,
                     wallets(balance),
-                    investments(id, status)
+                    investments(id, status, plan_name, amount)
                 `)
                 .order('created_at', { ascending: false });
+
+            if (error) {
+                console.error('fetchUsers error:', error);
+                alert('Could not load users: ' + error.message);
+                return;
+            }
 
             if (data) {
                 usersData = data;
@@ -524,6 +551,29 @@
             renderTable();
         }
 
+        // NEW: builds a small HTML list of plan name + amount per investment,
+        // instead of just an "N Active" count.
+        function formatInvestments(investments, { compact = false } = {}) {
+            const list = investments || [];
+            if (list.length === 0) {
+                return `<span class="no-plan">No plan</span>`;
+            }
+            // Show active plans first, then others; cap what we render inline to keep
+            // cards/table rows readable, the modal shows the full list.
+            const sorted = [...list].sort((a, b) => (a.status === 'active' ? -1 : 1) - (b.status === 'active' ? -1 : 1));
+            const toShow = compact ? sorted.slice(0, 2) : sorted;
+            const rows = toShow.map(i => `
+                <span class="investment-line">
+                    ${i.plan_name || 'Unnamed Plan'} · <span class="amt">₦${parseFloat(i.amount || 0).toLocaleString()}</span>
+                    ${i.status !== 'active' ? `<span style="color:var(--text-muted); font-size:10px;"> (${i.status})</span>` : ''}
+                </span>
+            `).join('');
+            const overflow = compact && sorted.length > 2
+                ? `<span class="investment-line" style="color:var(--text-muted)">+${sorted.length - 2} more</span>`
+                : '';
+            return rows + overflow;
+        }
+
         function renderTable() {
             const tableBody = document.getElementById('usersTableBody');
             const cardList = document.getElementById('usersCardList');
@@ -541,7 +591,7 @@
 
             paginated.forEach(u => {
                 const balance = u.wallets?.[0]?.balance || 0;
-                const activeInvs = u.investments?.filter(i => i.status === 'active').length || 0;
+                const investmentsHtml = formatInvestments(u.investments, { compact: true });
                 const statusClass = u.status === 'suspended' ? 'suspended' : 'active';
                 const statusLabel = u.status || 'active';
                 const joined = new Date(u.created_at).toLocaleDateString();
@@ -560,7 +610,7 @@
                     </td>
                     <td>@${u.username}</td>
                     <td><b>₦${parseFloat(balance).toLocaleString()}</b></td>
-                    <td>${activeInvs} Active</td>
+                    <td>${investmentsHtml}</td>
                     <td>${joined}</td>
                     <td><span class="status-pill ${statusClass}">${statusLabel}</span></td>
                     <td>
@@ -587,7 +637,7 @@
                     </div>
                     <div class="user-card-details">
                         <div><span class="label">Wallet</span>₦${parseFloat(balance).toLocaleString()}</div>
-                        <div><span class="label">Investments</span>${activeInvs} Active</div>
+                        <div><span class="label">Investments</span>${investmentsHtml}</div>
                         <div><span class="label">Joined</span>${joined}</div>
                         <div><span class="label">ID</span>${u.id.slice(0,8)}</div>
                     </div>
@@ -609,10 +659,20 @@
         window.viewUser = (id) => {
             const u = usersData.find(user => user.id === id);
             const balance = u.wallets?.[0]?.balance || 0;
-            const activeInvs = u.investments?.filter(i => i.status === 'active').length || 0;
+            const investments = u.investments || [];
+            const activeInvs = investments.filter(i => i.status === 'active').length;
 
             const modal = document.getElementById('userModal');
             const body = document.getElementById('modalBody');
+
+            const planRows = investments.length > 0
+                ? investments.map(i => `
+                    <div class="plan-row">
+                        <span class="plan-name">${i.plan_name || 'Unnamed Plan'}<span class="plan-status">${i.status}</span></span>
+                        <span class="plan-amount">₦${parseFloat(i.amount || 0).toLocaleString()}</span>
+                    </div>
+                `).join('')
+                : `<div class="plan-row"><span class="no-plan">No investment plans yet</span></div>`;
 
             body.innerHTML = `
                 <div class="detail-grid">
@@ -624,6 +684,10 @@
                 <div class="modal-stats-grid">
                     <div><label style="font-size:10px; color:var(--text-muted)">WALLET BALANCE</label><h2 style="color:var(--success)">₦${parseFloat(balance).toLocaleString()}</h2></div>
                     <div><label style="font-size:10px; color:var(--text-muted)">ACTIVE INVESTMENTS</label><h2>${activeInvs}</h2></div>
+                </div>
+                <div class="modal-plan-list">
+                    <h4>Investment Plans</h4>
+                    ${planRows}
                 </div>
                 <div class="modal-actions">
                     <button class="btn-export" style="flex:1" onclick="sendDirectNotification('${u.id}')">Send Notification</button>
