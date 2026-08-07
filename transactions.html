@@ -198,6 +198,8 @@
 </head>
 <body>
 
+    <div id="toast" role="status" aria-live="polite" style="display: none; position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: var(--success); color: white; padding: 12px 24px; border-radius: 30px; font-size: 13px; font-weight: 600; z-index: 3000; box-shadow: 0 4px 12px rgba(0,0,0,0.3); transition: opacity 0.3s ease; opacity: 0;">ID Copied!</div>
+
     <header>
         <div class="container header-flex">
             <a href="dashboard.html" class="back-btn"><i class="fas fa-arrow-left"></i> History</a>
@@ -434,9 +436,23 @@
                 <div class="detail-row"><span>Description</span><b>${t.description || 'N/A'}</b></div>
             `;
             
+            let toastTimeout;
             document.getElementById('copyIdBtn').onclick = () => {
                 navigator.clipboard.writeText(t.id);
-                alert('ID Copied!');
+                const toast = document.getElementById('toast');
+                toast.style.display = 'block';
+                toast.offsetHeight; // force reflow
+                toast.style.opacity = '1';
+
+                clearTimeout(toastTimeout);
+                toastTimeout = setTimeout(() => {
+                    toast.style.opacity = '0';
+                    setTimeout(() => {
+                        if (toast.style.opacity === '0') {
+                            toast.style.display = 'none';
+                        }
+                    }, 300);
+                }, 2000);
             };
             
             document.getElementById('txModal').style.display = 'flex';

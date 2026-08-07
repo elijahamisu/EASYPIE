@@ -396,6 +396,8 @@
 </head>
 <body>
 
+    <div id="toast" role="status" aria-live="polite" style="display: none; position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: var(--success); color: white; padding: 12px 24px; border-radius: 30px; font-size: 13px; font-weight: 600; z-index: 3000; box-shadow: 0 4px 12px rgba(0,0,0,0.3); transition: opacity 0.3s ease; opacity: 0;">Referral code copied!</div>
+
     <header>
         <div class="container" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
             <div class="user-info">
@@ -744,10 +746,24 @@
             window.location.href = 'login.html';
         };
 
+        let toastTimeout;
         window.copyRef = () => {
             const code = window.userRefCode || '...';
             navigator.clipboard.writeText(code);
-            alert('Referral code copied!');
+            const toast = document.getElementById('toast');
+            toast.style.display = 'block';
+            toast.offsetHeight; // force reflow
+            toast.style.opacity = '1';
+
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => {
+                    if (toast.style.opacity === '0') {
+                        toast.style.display = 'none';
+                    }
+                }, 300);
+            }, 2000);
         };
 
         window.addEventListener('DOMContentLoaded', init);
