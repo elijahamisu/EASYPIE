@@ -17,11 +17,6 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
-        /* ==========================================================
-           MOBILE-FIRST BASE STYLES
-           Base rules target small screens; min-width media queries
-           further down progressively enhance for larger viewports.
-           ========================================================== */
         :root {
             --primary-bg: #060b13;
             --secondary-bg: #0a0f1a;
@@ -56,7 +51,6 @@
             min-height: 100dvh;
         }
 
-        /* --- Sidebar (mobile: off-canvas drawer) --- */
         aside {
             width: min(80vw, var(--sidebar-width));
             background: var(--sidebar-bg);
@@ -115,7 +109,6 @@
             border-left: 4px solid var(--accent-color);
         }
 
-        /* --- Main --- */
         main { width: 100%; min-height: 100vh; min-height: 100dvh; }
 
         header {
@@ -135,11 +128,10 @@
         #mobileMenuBtn { font-size: 20px; cursor: pointer; color: var(--text-muted); padding: 8px; flex-shrink: 0; }
 
         #adminProfile { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
-        #adminName { display: none; } /* shown at larger breakpoints */
+        #adminName { display: none; }
 
         .container { padding: 16px; max-width: 1400px; margin: 0 auto; }
 
-        /* --- Stats Row: 2-up on mobile --- */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -155,7 +147,6 @@
         .stat-mini-card p { font-size: 10px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 5px; }
         .stat-mini-card h3 { font-size: 18px; font-weight: 700; }
 
-        /* --- Toolbar: stacked on mobile --- */
         .toolbar {
             background: var(--card-bg);
             padding: 14px;
@@ -199,7 +190,6 @@
             white-space: nowrap;
         }
 
-        /* --- Users list: cards on mobile, table at >=768px --- */
         .table-container {
             background: var(--card-bg);
             border-radius: 18px;
@@ -256,7 +246,6 @@
         }
         .btn-action-icon:active, .btn-action-icon:hover { color: var(--accent-color); }
 
-        /* --- Pagination --- */
         .pagination { display: flex; justify-content: center; align-items: center; gap: 15px; margin-top: 20px; }
         .btn-page {
             background: var(--card-bg); color: white; border: 1px solid var(--glass-border);
@@ -264,7 +253,6 @@
         }
         .btn-page:disabled { opacity: 0.3; cursor: not-allowed; }
 
-        /* --- Modals --- */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.85); display: none; align-items: flex-end;
@@ -311,6 +299,37 @@
         .plan-row .plan-status { font-size: 10px; text-transform: uppercase; margin-left: 8px; color: var(--text-muted); }
         .plan-row .plan-amount { color: var(--success); font-weight: 700; }
 
+        /* --- NEW: balance adjustment panel --- */
+        .balance-adjust-input {
+            width: 100%;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            padding: 12px;
+            color: white;
+            outline: none;
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        .balance-adjust-reason {
+            width: 100%;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            padding: 10px;
+            color: white;
+            outline: none;
+            font-size: 13px;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 50px;
+            margin-bottom: 10px;
+        }
+        .balance-adjust-btns { display: flex; gap: 10px; }
+        .btn-add-funds { flex: 1; background: var(--success); color: #fff; border: none; padding: 12px; border-radius: 10px; font-weight: 700; font-size: 13px; cursor: pointer; }
+        .btn-deduct-funds { flex: 1; background: var(--danger); color: #fff; border: none; padding: 12px; border-radius: 10px; font-weight: 700; font-size: 13px; cursor: pointer; }
+
         .modal-actions { display: flex; flex-direction: column; gap: 10px; margin-top: 16px; }
 
         .tab-menu { display: flex; gap: 16px; border-bottom: 1px solid var(--glass-border); margin-bottom: 16px; overflow-x: auto; }
@@ -327,9 +346,6 @@
             display: flex; align-items: center; justify-content: center;
         }
 
-        /* ==========================================================
-           PROGRESSIVE ENHANCEMENT — larger screens
-           ========================================================== */
         @media (min-width: 480px) {
             .stats-grid { grid-template-columns: repeat(4, 1fr); }
         }
@@ -375,7 +391,6 @@
 
     <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="closeSidebar()"></div>
 
-    <!-- Sidebar -->
     <aside id="sidebar">
         <div class="sidebar-header">
             EASYPIE ADMIN
@@ -407,7 +422,6 @@
         </header>
 
         <div class="container">
-            <!-- Stats -->
             <div class="stats-grid">
                 <div class="stat-mini-card"><p>Total Users</p><h3 id="totalUsers">0</h3></div>
                 <div class="stat-mini-card"><p>Active</p><h3 id="activeUsersCount" style="color: var(--success);">0</h3></div>
@@ -415,7 +429,6 @@
                 <div class="stat-mini-card"><p>New Today</p><h3 id="newUsersCount" style="color: var(--accent-color);">0</h3></div>
             </div>
 
-            <!-- Toolbar -->
             <div class="toolbar">
                 <input type="text" class="search-input" id="userSearch" placeholder="Search name, email, username, or ID...">
                 <div class="toolbar-row">
@@ -428,12 +441,9 @@
                 </div>
             </div>
 
-            <!-- List / Table -->
             <div class="table-container">
-                <!-- Mobile: stacked cards -->
                 <div class="mobile-user-list" id="usersCardList"></div>
 
-                <!-- >=768px: real table -->
                 <table>
                     <thead>
                         <tr>
@@ -447,7 +457,6 @@
                         </tr>
                     </thead>
                     <tbody id="usersTableBody">
-                        <!-- Dynamic Content -->
                     </tbody>
                 </table>
             </div>
@@ -468,7 +477,6 @@
                 <i class="fas fa-times" onclick="closeModal()" style="cursor:pointer; padding:6px;"></i>
             </div>
             <div class="modal-body" id="modalBody">
-                <!-- Content injected via JS -->
             </div>
         </div>
     </div>
@@ -482,6 +490,7 @@
         let filteredUsers = [];
         let currentPage = 1;
         const perPage = 15;
+        let currentAdminId = null; // NEW: needed to log who made a balance adjustment
 
         async function init() {
             const { data: { session } } = await supabase.auth.getSession();
@@ -490,6 +499,7 @@
             const { data: profile } = await supabase.from('profiles').select('is_admin, full_name').eq('id', session.user.id).single();
             if (!profile?.is_admin) { window.location.href = '../login.html'; return; }
 
+            currentAdminId = session.user.id;
             document.getElementById('adminName').innerText = profile.full_name;
             document.getElementById('loader').style.display = 'none';
 
@@ -499,12 +509,6 @@
         }
 
         async function fetchUsers() {
-            // Join with wallets to get balance and investments to get plan_name/amount/status.
-            // NOTE: this requires RLS on wallets/investments to allow admins to read every
-            // row (not just their own) — see fix_admin_wallet_investment_rls.sql. Without
-            // that, these embedded arrays silently come back empty for every user that
-            // isn't the currently logged-in admin, which is why balance/investments were
-            // showing as 0 for everyone.
             const { data, error } = await supabase
                 .from('profiles')
                 .select(`
@@ -551,15 +555,11 @@
             renderTable();
         }
 
-        // NEW: builds a small HTML list of plan name + amount per investment,
-        // instead of just an "N Active" count.
         function formatInvestments(investments, { compact = false } = {}) {
             const list = investments || [];
             if (list.length === 0) {
                 return `<span class="no-plan">No plan</span>`;
             }
-            // Show active plans first, then others; cap what we render inline to keep
-            // cards/table rows readable, the modal shows the full list.
             const sorted = [...list].sort((a, b) => (a.status === 'active' ? -1 : 1) - (b.status === 'active' ? -1 : 1));
             const toShow = compact ? sorted.slice(0, 2) : sorted;
             const rows = toShow.map(i => `
@@ -596,7 +596,6 @@
                 const statusLabel = u.status || 'active';
                 const joined = new Date(u.created_at).toLocaleDateString();
 
-                // Desktop table row
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>
@@ -621,7 +620,6 @@
                 `;
                 tableBody.appendChild(row);
 
-                // Mobile stacked card
                 const card = document.createElement('div');
                 card.className = 'user-card';
                 card.innerHTML = `
@@ -689,12 +687,86 @@
                     <h4>Investment Plans</h4>
                     ${planRows}
                 </div>
+
+                <!-- NEW: Balance adjustment panel -->
+                <div class="modal-plan-list">
+                    <h4>Adjust Wallet Balance</h4>
+                    <input type="number" id="balanceAdjustAmount" class="balance-adjust-input" placeholder="Amount (₦)" min="0">
+                    <textarea id="balanceAdjustReason" class="balance-adjust-reason" placeholder="Reason (sent to user in notification, optional)"></textarea>
+                    <div class="balance-adjust-btns">
+                        <button class="btn-add-funds" onclick="adjustBalance('${u.id}', 'add')">Add Funds</button>
+                        <button class="btn-deduct-funds" onclick="adjustBalance('${u.id}', 'subtract')">Deduct Funds</button>
+                    </div>
+                </div>
+
                 <div class="modal-actions">
                     <button class="btn-export" style="flex:1" onclick="sendDirectNotification('${u.id}')">Send Notification</button>
                     <button class="btn-export" style="flex:1; background:var(--warning)" onclick="resetUserWallet('${u.id}')">Reset Wallet</button>
                 </div>
             `;
             modal.style.display = 'flex';
+        };
+
+        // NEW: Add or deduct funds from a user's wallet. Logs a transaction + notification
+        // so it shows up in the user's own transaction history and the admin_logs audit trail.
+        // Requires the "Admins can update any wallet" / "...insert transactions/notifications
+        // for any user" RLS policies — without those, this will fail with a permissions error.
+        window.adjustBalance = async (userId, mode) => {
+            const amountInput = document.getElementById('balanceAdjustAmount');
+            const reasonInput = document.getElementById('balanceAdjustReason');
+            const amount = parseFloat(amountInput.value);
+            const reason = reasonInput.value.trim();
+
+            if (!amount || amount <= 0) {
+                alert('Enter a valid amount greater than 0.');
+                return;
+            }
+
+            const u = usersData.find(user => user.id === userId);
+            const currentBalance = parseFloat(u.wallets?.[0]?.balance || 0);
+            const delta = mode === 'add' ? amount : -amount;
+            const newBalance = currentBalance + delta;
+
+            if (mode === 'subtract' && amount > currentBalance) {
+                if (!confirm(`${u.full_name}'s current balance is ₦${currentBalance.toLocaleString()}. Deducting ₦${amount.toLocaleString()} will take it negative (₦${newBalance.toLocaleString()}). Continue anyway?`)) return;
+            }
+
+            if (!confirm(`${mode === 'add' ? 'Add' : 'Deduct'} ₦${amount.toLocaleString()} ${mode === 'add' ? 'to' : 'from'} ${u.full_name}'s wallet?\n\nNew balance will be ₦${newBalance.toLocaleString()}.`)) return;
+
+            try {
+                const { error: wErr } = await supabase.from('wallets').update({ balance: newBalance }).eq('user_id', userId);
+                if (wErr) throw wErr;
+
+                // Reuses the 'bonus' (positive) / 'withdrawal' (negative) transaction types
+                // so it displays with correct +/- coloring on transactions.html without
+                // needing changes there.
+                await supabase.from('transactions').insert([{
+                    user_id: userId,
+                    amount: amount,
+                    type: mode === 'add' ? 'bonus' : 'withdrawal',
+                    description: reason || (mode === 'add' ? 'Balance credited by admin' : 'Balance deducted by admin')
+                }]);
+
+                await supabase.from('notifications').insert([{
+                    user_id: userId,
+                    title: mode === 'add' ? 'Balance Credited' : 'Balance Adjusted',
+                    message: mode === 'add'
+                        ? `₦${amount.toLocaleString()} was added to your wallet by admin.${reason ? ' Reason: ' + reason : ''}`
+                        : `₦${amount.toLocaleString()} was deducted from your wallet by admin.${reason ? ' Reason: ' + reason : ''}`
+                }]);
+
+                await supabase.from('admin_logs').insert([{
+                    admin_id: currentAdminId,
+                    action: `${mode === 'add' ? 'Added' : 'Deducted'} ₦${amount.toLocaleString()} ${mode === 'add' ? 'to' : 'from'} user #${userId.slice(0,8)}${reason ? ' — ' + reason : ''}`,
+                    target_id: userId
+                }]);
+
+                alert('Balance updated successfully.');
+                closeModal();
+                fetchUsers();
+            } catch (err) {
+                alert('Error: ' + err.message);
+            }
         };
 
         window.toggleSuspend = async (id, currentStatus) => {
